@@ -20,12 +20,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <!-- <maven.compiler.target>21</maven.compiler.target>-->
-        <!-- <maven.compiler.source>21</maven.compiler.source>-->
+        <!-- To cross-compile correctly, the new -release option replaces three flags: -source, -target and -bootclasspath-->
         <maven.compiler.release>21</maven.compiler.release>
         <java.version>21</java.version>
 
-        <spring.batch>5.2.0</spring.batch>
+        <spring.batch>5.1.2</spring.batch>
 
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
@@ -38,99 +37,6 @@
             <url>https://repo1.maven.org/maven2/</url>
         </repository>
     </repositories>
-
-    <build>
-        <sourceDirectory>src/main/kotlin</sourceDirectory>
-        <testSourceDirectory>src/test/kotlin</testSourceDirectory>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
-                <configuration>
-                    <args>
-                        <arg>-Xjsr305=strict</arg>
-                    </args>
-                    <compilerPlugins>
-                        <plugin>spring</plugin>
-                        <plugin>jpa</plugin>
-                        <plugin>all-open</plugin>
-                    </compilerPlugins>
-                    <pluginOptions>
-                        <option>all-open:annotation=jakarta.persistence.Entity</option>
-                        <option>all-open:annotation=jakarta.persistence.Embeddable</option>
-                        <option>all-open:annotation=jakarta.persistence.MappedSuperclass</option>
-                    </pluginOptions>
-                </configuration>
-                <dependencies>
-<!--                    <dependency>-->
-<!--                        <groupId>org.jetbrains.kotlin</groupId>-->
-<!--                        <artifactId>kotlin-maven-allopen</artifactId>-->
-<!--                        <version>${kotlin.version}</version>-->
-<!--                    </dependency>-->
-<!--                    <dependency>-->
-<!--                        <groupId>org.jetbrains.kotlin</groupId>-->
-<!--                        <artifactId>kotlin-maven-noarg</artifactId>-->
-<!--                        <version>${kotlin.version}</version>-->
-<!--                    </dependency>-->
-                </dependencies>
-                <executions>
-<!--                    <execution>-->
-<!--                        <id>compile</id>-->
-<!--                        <phase>compile</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>compile</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                    <execution>-->
-<!--                        <id>test-compile</id>-->
-<!--                        <phase>test-compile</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>test-compile</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                    <execution>-->
-<!--                        <id>kapt</id>-->
-<!--                        <goals>-->
-<!--                            <goal>kapt</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <sourceDirs>-->
-<!--                                <sourceDir>src/main/kotlin</sourceDir>-->
-<!--                            </sourceDirs>-->
-<!--                            <annotationProcessorPaths>-->
-<!--                                <annotationProcessorPath>-->
-<!--                                    <groupId>org.springframework.boot</groupId>-->
-<!--                                    <artifactId>spring-boot-configuration-processor</artifactId>-->
-<!--                                    <version>${project.parent.version}</version>-->
-<!--                                </annotationProcessorPath>-->
-<!--                            </annotationProcessorPaths>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-                </executions>
-            </plugin>
-<!--            <plugin>-->
-<!--                <artifactId>maven-surefire-plugin</artifactId>-->
-<!--                <version>2.22.2</version>-->
-<!--            </plugin>-->
-<!--            <plugin>-->
-<!--                <artifactId>maven-failsafe-plugin</artifactId>-->
-<!--                <version>2.22.2</version>-->
-<!--            </plugin>-->
-<!--            <plugin>-->
-<!--                <groupId>org.codehaus.mojo</groupId>-->
-<!--                <artifactId>exec-maven-plugin</artifactId>-->
-<!--                <version>1.6.0</version>-->
-<!--                <configuration>-->
-<!--                    <mainClass>ApplicationAspirateur</mainClass>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
-        </plugins>
-    </build>
 
     <dependencies>
         <!-- Kotlin standard library. -->
@@ -184,6 +90,122 @@
             <artifactId>spring-batch-core</artifactId>
             <version>${spring.batch}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.batch</groupId>
+            <artifactId>spring-batch-test</artifactId>
+            <version>${spring.batch}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
+    <!-- https://spring.io/guides/tutorials/spring-boot-kotlin#maven-build -->
+    <build>
+        <sourceDirectory>src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>src/test/kotlin</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <configuration>
+                    <!-- Kotlin support for JSR 305 annotations : @Nonnull-->
+                    <args>
+                        <arg>-Xjsr305=strict</arg>
+                    </args>
+                    <!--
+                    In addition to the obvious Kotlin Maven plugin, the default configuration declares the kotlin-spring
+                    plugin which automatically opens classes and methods (unlike in Java, the default qualifier is final
+                    in Kotlin) annotated or meta-annotated with Spring annotations. This is useful to be able to create
+                    @Configuration or @Transactional beans without having to add the open qualifier required by CGLIB
+                    proxies for example.
+                    -->
+                    <!--
+                    In order to be able to use Kotlin non-nullable properties with JPA, Kotlin JPA plugin is also
+                    enabled. It generates no-arg constructors for any class annotated with @Entity, @MappedSuperclass or
+                    @Embeddable.
+                    -->
+                    <!--
+                    In order to make lazy fetching working as expected, entities should be open as described in
+                    KT-28525. We are going to use the Kotlin allopen plugin for that purpose.
+                    -->
+                    <compilerPlugins>
+                        <plugin>spring</plugin>
+                        <plugin>jpa</plugin>
+                        <plugin>all-open</plugin>
+                    </compilerPlugins>
+                    <pluginOptions>
+                        <option>all-open:annotation=jakarta.persistence.Entity</option>
+                        <option>all-open:annotation=jakarta.persistence.Embeddable</option>
+                        <option>all-open:annotation=jakarta.persistence.MappedSuperclass</option>
+                    </pluginOptions>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-allopen</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-noarg</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <!--                    <execution>-->
+                    <!--                        <id>compile</id>-->
+                    <!--                        <phase>compile</phase>-->
+                    <!--                        <goals>-->
+                    <!--                            <goal>compile</goal>-->
+                    <!--                        </goals>-->
+                    <!--                    </execution>-->
+                    <!--                    <execution>-->
+                    <!--                        <id>test-compile</id>-->
+                    <!--                        <phase>test-compile</phase>-->
+                    <!--                        <goals>-->
+                    <!--                            <goal>test-compile</goal>-->
+                    <!--                        </goals>-->
+                    <!--                    </execution>-->
+                    <!--                    <execution>-->
+                    <!--                        <id>kapt</id>-->
+                    <!--                        <goals>-->
+                    <!--                            <goal>kapt</goal>-->
+                    <!--                        </goals>-->
+                    <!--                        <configuration>-->
+                    <!--                            <sourceDirs>-->
+                    <!--                                <sourceDir>src/main/kotlin</sourceDir>-->
+                    <!--                            </sourceDirs>-->
+                    <!--                            <annotationProcessorPaths>-->
+                    <!--                                <annotationProcessorPath>-->
+                    <!--                                    <groupId>org.springframework.boot</groupId>-->
+                    <!--                                    <artifactId>spring-boot-configuration-processor</artifactId>-->
+                    <!--                                    <version>${project.parent.version}</version>-->
+                    <!--                                </annotationProcessorPath>-->
+                    <!--                            </annotationProcessorPaths>-->
+                    <!--                        </configuration>-->
+                    <!--                    </execution>-->
+                </executions>
+            </plugin>
+            <!--            <plugin>-->
+            <!--                <artifactId>maven-surefire-plugin</artifactId>-->
+            <!--                <version>2.22.2</version>-->
+            <!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <artifactId>maven-failsafe-plugin</artifactId>-->
+            <!--                <version>2.22.2</version>-->
+            <!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.codehaus.mojo</groupId>-->
+            <!--                <artifactId>exec-maven-plugin</artifactId>-->
+            <!--                <version>1.6.0</version>-->
+            <!--                <configuration>-->
+            <!--                    <mainClass>ApplicationAspirateur</mainClass>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
+        </plugins>
+    </build>
 </project>
