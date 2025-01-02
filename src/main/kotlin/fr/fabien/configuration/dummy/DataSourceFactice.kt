@@ -1,11 +1,11 @@
-package fr.fabien.dummy
+package fr.fabien.configuration.dummy
 
 import java.io.PrintWriter
 import java.sql.Connection
 import java.util.logging.Logger
 import javax.sql.DataSource
 
-class DummyDataSource : DataSource {
+class DataSourceFactice : DataSource {
     override fun getLogWriter(): PrintWriter {
         TODO("Not yet implemented")
     }

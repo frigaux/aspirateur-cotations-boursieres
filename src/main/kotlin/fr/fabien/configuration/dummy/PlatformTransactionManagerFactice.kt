@@ -1,11 +1,11 @@
-package fr.fabien.dummy
+package fr.fabien.configuration.dummy
 
 import org.springframework.beans.factory.BeanNameAware
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.TransactionStatus
 
-class DummyPlatformTransactionManager : PlatformTransactionManager, BeanNameAware {
+class PlatformTransactionManagerFactice : PlatformTransactionManager, BeanNameAware {
     override fun getTransaction(definition: TransactionDefinition?): TransactionStatus {
         TODO("Not yet implemented")
     }

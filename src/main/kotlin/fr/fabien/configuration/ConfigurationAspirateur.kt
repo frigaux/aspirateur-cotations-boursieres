@@ -1,4 +1,4 @@
-package fr.fabien
+package fr.fabien.configuration
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
@@ -13,22 +13,20 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.jdbc.support.JdbcTransactionManager
 
 @Configuration
-//@EnableBatchProcessing
-//@Import(ConfigurationDataSource::class)
-class ConfigurationAspirateur
+class ConfigurationAspirateur {
+    @Bean
+    fun stepTasklet(jobRepository: JobRepository, transactionManager: JdbcTransactionManager): Step {
+        return StepBuilder(
+            "stepTasklet",
+            jobRepository
+        ).tasklet({ contribution: StepContribution, chunkContext: ChunkContext ->
+            println("Hello world!")
+            RepeatStatus.FINISHED
+        }, transactionManager).build()
+    }
 
-@Bean
-fun stepTasklet(jobRepository: JobRepository, transactionManager: JdbcTransactionManager): Step {
-    return StepBuilder(
-        "step",
-        jobRepository
-    ).tasklet({ contribution: StepContribution, chunkContext: ChunkContext ->
-        println("Hello world!")
-        RepeatStatus.FINISHED
-    }, transactionManager).build()
-}
-
-@Bean
-fun jobTasklet(jobRepository: JobRepository, step: Step): Job {
-    return JobBuilder("job", jobRepository).start(step).build()
+    @Bean
+    fun jobTasklet(jobRepository: JobRepository, step: Step): Job {
+        return JobBuilder("jobTasklet", jobRepository).start(step).build()
+    }
 }
