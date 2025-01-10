@@ -1,4 +1,4 @@
-package fr.fabien.configuration.dummy
+package fr.fabien.aspirateur.cotations.configuration.dummy
 
 import java.io.PrintWriter
 import java.sql.Connection

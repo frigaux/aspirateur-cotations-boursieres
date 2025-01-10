@@ -1,4 +1,4 @@
-package fr.fabien.configuration.dummy
+package fr.fabien.aspirateur.cotations.configuration.dummy
 
 import org.springframework.beans.factory.BeanNameAware
 import org.springframework.transaction.PlatformTransactionManager

@@ -30,7 +30,7 @@ class TestConfigurationAspirateur {
 
     @Test
     @Throws(Exception::class)
-    fun importUserJob_WhenJobEnds_ThenStatusCompleted() {
+    fun launchJob_WhenJobEnds_ThenStatusCompleted() {
         jobLauncherTestUtils?.setJob(jobTasklet!!) // job is launch here ?!?
         val jobExecution: JobExecution = jobLauncherTestUtils?.launchJob()!!
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)

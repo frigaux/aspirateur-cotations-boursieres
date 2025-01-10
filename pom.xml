@@ -46,7 +46,8 @@
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
-        <!-- Runtime libraries for Kotlin reflection, which allows you to introspect the structure of your program at runtime. -->
+        <!-- Runtime libraries for Kotlin reflection. -->
+        <!-- https://kotlinlang.org/docs/reflection.html -->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
@@ -54,11 +55,11 @@
         </dependency>
         <!-- Add-on module for Jackson to support Kotlin language, specifically introspection of method/constructor parameter names, -->
         <!-- without having to add explicit property name annotation. -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-kotlin</artifactId>
-            <version>2.17.1</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.fasterxml.jackson.module</groupId>-->
+<!--            <artifactId>jackson-module-kotlin</artifactId>-->
+<!--            <version>2.17.1</version>-->
+<!--        </dependency>-->
 
         <!-- Kotlin Test library support for JUnit5. -->
         <dependency>
@@ -92,6 +93,7 @@
             <artifactId>spring-batch-core</artifactId>
             <version>${spring.batch}</version>
         </dependency>
+
         <!-- Replace with JPA and Mysql -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -108,6 +110,25 @@
             <artifactId>spring-batch-test</artifactId>
             <version>${spring.batch}</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- https://www.baeldung.com/kotlin/kotlin-logging-library -->
+        <dependency>
+            <groupId>io.github.microutils</groupId>
+            <artifactId>kotlin-logging-jvm</artifactId>
+            <version>3.0.5</version>
+        </dependency>
+
+        <!-- https://ktor.io/docs/client-create-new-application.html -->
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-core-jvm</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-cio-jvm</artifactId>
+            <version>3.0.3</version>
         </dependency>
     </dependencies>
 
