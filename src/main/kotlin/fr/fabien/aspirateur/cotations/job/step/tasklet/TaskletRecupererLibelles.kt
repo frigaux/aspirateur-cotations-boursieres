@@ -16,7 +16,9 @@ import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.context.annotation.Scope
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Component
+import java.nio.charset.Charset
 import java.util.zip.GZIPInputStream
 
 @Component
@@ -26,6 +28,9 @@ class TaskletRecupererLibelles : Tasklet {
         private val logger = KotlinLogging.logger {}
         private val domain: String = "https://www.abcbourse.com"
         private val pathLibelles: String = "/download/libelles"
+        var token: String? = null
+        var encoding: Charset? = null
+        var csv: ByteArrayResource? = null
     }
 
     override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus {
@@ -38,15 +43,15 @@ class TaskletRecupererLibelles : Tasklet {
         val client = HttpClient(CIO) {
             install(HttpCookies)
         }
-        val token = getToken(client)
+        getToken(client)
         logger.info { "RequestVerificationToken = $token" }
-        val csv = getLibelles(client, token)
-        logger.info { "Libellés = $csv" }
+        getLibelles(client)
+        logger.info { "Libellés ($encoding)${System.lineSeparator()} ${csv!!.getContentAsString(encoding!!)}" }
         client.close()
         return RepeatStatus.FINISHED
     }
 
-    private suspend fun getLibelles(client: HttpClient, token: String): String {
+    private suspend fun getLibelles(client: HttpClient) {
         // https://ktor.io/docs/client-requests.html#form_parameters
         // https://ktor.io/docs/client-responses.html#streaming
         val response: HttpResponse = client.submitForm(
@@ -54,7 +59,7 @@ class TaskletRecupererLibelles : Tasklet {
             formParameters = parameters {
                 append("cbox", "xcac40p")
                 append("cbPlace", "true")
-                append("__RequestVerificationToken", token)
+                append("__RequestVerificationToken", token!!)
                 append("cbPlace", "false")
             }
         ) {
@@ -72,20 +77,34 @@ class TaskletRecupererLibelles : Tasklet {
         }
         if (response.status.value == 200) {
             val bytes: ByteArray = response.body()
-            return GZIPInputStream(bytes.inputStream())
-                .readAllBytes()
-                .toString(Charsets.UTF_8)
+            val regexpToken = "filename\\*=(.*)''"
+            val contentDisposition: String? = response.headers.get("content-disposition")
+            encoding = contentDisposition?.let {
+                regexpToken
+                    .toRegex()
+                    .find(it)
+                    ?.let {
+                        Charset.forName(it.groups[1]!!.value)
+                    }
+                    ?: run {
+                        throw UnexpectedJobExecutionException("Encoding not found in contentDisposition : $contentDisposition")
+                    }
+            }
+            csv = ByteArrayResource(
+                GZIPInputStream(bytes.inputStream())
+                    .readAllBytes()
+            )
         } else {
             throw UnexpectedJobExecutionException(response.toString())
         }
     }
 
-    private suspend fun getToken(client: HttpClient): String {
+    private suspend fun getToken(client: HttpClient) {
         val response: HttpResponse = client.get(domain + pathLibelles)
         if (response.status.value == 200) {
             val regexpToken = "\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\""
             val content = response.bodyAsText()
-            return regexpToken
+            token = regexpToken
                 .toRegex()
                 .find(content)
                 ?.let {
