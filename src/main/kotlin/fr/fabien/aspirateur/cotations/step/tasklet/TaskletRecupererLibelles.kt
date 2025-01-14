@@ -1,9 +1,13 @@
 package fr.fabien.aspirateur.cotations.configuration.step.tasklet
 
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.batch.core.StepContribution
@@ -13,39 +17,85 @@ import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
+import java.util.zip.GZIPInputStream
 
 @Component
 @Scope("singleton")
 class TaskletRecupererLibelles : Tasklet {
-    val logger = KotlinLogging.logger {}
-
-    override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus {
-        return requeteAbcBourse()
+    companion object {
+        private val logger = KotlinLogging.logger {}
+        private val domain: String = "https://www.abcbourse.com"
+        private val pathLibelles: String = "/download/libelles"
     }
 
-    private fun requeteAbcBourse(): RepeatStatus {
+    override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus {
         return runBlocking {
-            val client = HttpClient(CIO)
-            val response: HttpResponse = client.get("https://www.abcbourse.com/download/libelles")
-            client.close()
-            if (response.status.value == 200) {
-                val regexpToken = "\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\""
-                val content = response.bodyAsText()
-                regexpToken
-                    .toRegex()
-                    .find(content)
-                    ?.let {
-                        val token = it.groups[1]!!.value
-                        logger.info { "RequestVerificationToken = ${token}" }
-                    }
-                    ?:run {
-                        logger.info { "RequestVerificationToken introuvable dans ${content}" }
-                        throw UnexpectedJobExecutionException("RequestVerificationToken introuvable")
-                    }
-            } else {
-                throw UnexpectedJobExecutionException(response.toString())
+            requeteAbcBourse()
+        }
+    }
+
+    private suspend fun requeteAbcBourse(): RepeatStatus {
+        val client = HttpClient(CIO) {
+            install(HttpCookies)
+        }
+        val token = getToken(client)
+        logger.info { "RequestVerificationToken = $token" }
+        val csv = getLibelles(client, token)
+        logger.info { "Libellés = $csv" }
+        client.close()
+        return RepeatStatus.FINISHED
+    }
+
+    private suspend fun getLibelles(client: HttpClient, token: String): String {
+        // https://ktor.io/docs/client-requests.html#form_parameters
+        // https://ktor.io/docs/client-responses.html#streaming
+        val response: HttpResponse = client.submitForm(
+            url = domain + pathLibelles,
+            formParameters = parameters {
+                append("cbox", "xcac40p")
+                append("cbPlace", "true")
+                append("__RequestVerificationToken", token)
+                append("cbPlace", "false")
             }
-            RepeatStatus.FINISHED
+        ) {
+            headers {
+                append(
+                    HttpHeaders.Accept,
+                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+                )
+                append(HttpHeaders.AcceptEncoding, "gzip, deflate, br, zstd")
+                append(HttpHeaders.AcceptLanguage, "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7")
+                append(HttpHeaders.CacheControl, "max-age=0")
+                append(HttpHeaders.Origin, domain)
+                append(HttpHeaders.Referrer, domain + pathLibelles)
+            }
+        }
+        if (response.status.value == 200) {
+            val bytes: ByteArray = response.body()
+            return GZIPInputStream(bytes.inputStream())
+                .readAllBytes()
+                .toString(Charsets.UTF_8)
+        } else {
+            throw UnexpectedJobExecutionException(response.toString())
+        }
+    }
+
+    private suspend fun getToken(client: HttpClient): String {
+        val response: HttpResponse = client.get(domain + pathLibelles)
+        if (response.status.value == 200) {
+            val regexpToken = "\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\""
+            val content = response.bodyAsText()
+            return regexpToken
+                .toRegex()
+                .find(content)
+                ?.let {
+                    it.groups[1]!!.value
+                }
+                ?: run {
+                    throw UnexpectedJobExecutionException("RequestVerificationToken introuvable dans $content")
+                }
+        } else {
+            throw UnexpectedJobExecutionException(response.toString())
         }
     }
 }

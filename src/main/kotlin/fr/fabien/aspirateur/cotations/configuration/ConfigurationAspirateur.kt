@@ -13,7 +13,8 @@ import org.springframework.jdbc.support.JdbcTransactionManager
 @Configuration
 class ConfigurationAspirateur {
     @Bean
-    fun stepRecupererLibelles(jobRepository: JobRepository, transactionManager: JdbcTransactionManager, taskletRecupererLibelles: Tasklet): Step {
+    fun stepRecupererLibelles(jobRepository: JobRepository, transactionManager: JdbcTransactionManager,
+                              taskletRecupererLibelles: Tasklet): Step {
         return StepBuilder("stepRecupererLibelles", jobRepository)
             .tasklet(taskletRecupererLibelles, transactionManager)
             .build()
