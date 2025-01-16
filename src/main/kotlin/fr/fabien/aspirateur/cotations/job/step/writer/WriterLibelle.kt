@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 @Component
 @Scope("singleton")
 class WriterLibelle : ItemWriter<Libelle> {
-    override fun write(chunk: Chunk<out Libelle>) {
+    override fun write(libelles: Chunk<out Libelle>) {
         TODO("Not yet implemented")
     }
 }

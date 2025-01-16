@@ -51,7 +51,40 @@ class TaskletRecupererLibelles : Tasklet {
         return RepeatStatus.FINISHED
     }
 
+    private suspend fun getToken(client: HttpClient) {
+        val response: HttpResponse = client.get(domain + pathLibelles)
+        if (response.status.value == 200) {
+            val regexpToken = "\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\""
+            val content = response.bodyAsText()
+            token = regexpToken
+                .toRegex()
+                .find(content)
+                ?.let {
+                    it.groups[1]!!.value
+                }
+                ?: run {
+                    throw UnexpectedJobExecutionException("RequestVerificationToken introuvable dans $content")
+                }
+        } else {
+            throw UnexpectedJobExecutionException(response.toString())
+        }
+    }
+
     private suspend fun getLibelles(client: HttpClient) {
+        val response: HttpResponse = submitFormLibelles(client)
+        if (response.status.value == 200) {
+            encoding = findEncoding(response)
+            val bytes: ByteArray = response.body()
+            csv = ByteArrayResource(
+                GZIPInputStream(bytes.inputStream())
+                    .readAllBytes()
+            )
+        } else {
+            throw UnexpectedJobExecutionException(response.toString())
+        }
+    }
+
+    private suspend fun submitFormLibelles(client: HttpClient): HttpResponse {
         // https://ktor.io/docs/client-requests.html#form_parameters
         // https://ktor.io/docs/client-responses.html#streaming
         val response: HttpResponse = client.submitForm(
@@ -75,46 +108,25 @@ class TaskletRecupererLibelles : Tasklet {
                 append(HttpHeaders.Referrer, domain + pathLibelles)
             }
         }
-        if (response.status.value == 200) {
-            val bytes: ByteArray = response.body()
-            val regexpToken = "filename\\*=(.*)''"
-            val contentDisposition: String? = response.headers.get("content-disposition")
-            encoding = contentDisposition?.let {
-                regexpToken
-                    .toRegex()
-                    .find(it)
-                    ?.let {
-                        Charset.forName(it.groups[1]!!.value)
-                    }
-                    ?: run {
-                        throw UnexpectedJobExecutionException("Encoding not found in contentDisposition : $contentDisposition")
-                    }
-            }
-            csv = ByteArrayResource(
-                GZIPInputStream(bytes.inputStream())
-                    .readAllBytes()
-            )
-        } else {
-            throw UnexpectedJobExecutionException(response.toString())
-        }
+        return response
     }
 
-    private suspend fun getToken(client: HttpClient) {
-        val response: HttpResponse = client.get(domain + pathLibelles)
-        if (response.status.value == 200) {
-            val regexpToken = "\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\""
-            val content = response.bodyAsText()
-            token = regexpToken
+    private suspend fun findEncoding(response: HttpResponse): Charset {
+        val regexpToken = "filename\\*=(.*)''"
+        val contentDisposition : String? = response.headers.get("content-disposition")
+        return contentDisposition?.let {
+            regexpToken
                 .toRegex()
-                .find(content)
+                .find(it)
                 ?.let {
-                    it.groups[1]!!.value
+                    Charset.forName(it.groups[1]!!.value)
                 }
                 ?: run {
-                    throw UnexpectedJobExecutionException("RequestVerificationToken introuvable dans $content")
+                    throw UnexpectedJobExecutionException("Encoding not found in contentDisposition : $contentDisposition")
                 }
-        } else {
-            throw UnexpectedJobExecutionException(response.toString())
         }
+            ?: run {
+                throw UnexpectedJobExecutionException("content-disposition not found in response headers : ${response.headers}")
+            }
     }
 }
