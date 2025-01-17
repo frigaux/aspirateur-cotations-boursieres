@@ -1,6 +1,6 @@
 package fr.fabien.aspirateur.cotations.configuration
 
-import fr.fabien.aspirateur.cotations.job.dto.Libelle
+import fr.fabien.aspirateur.cotations.dto.Libelle
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.JobBuilder
@@ -11,7 +11,7 @@ import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.jdbc.support.JdbcTransactionManager
+import org.springframework.orm.jpa.JpaTransactionManager
 
 @Configuration
 class ConfigurationAspirateur {
@@ -19,7 +19,7 @@ class ConfigurationAspirateur {
     @Bean
     fun stepRecupererLibelles(
         jobRepository: JobRepository,
-        transactionManager: JdbcTransactionManager,
+        transactionManager: JpaTransactionManager,
         taskletRecupererLibelles: Tasklet
     ): Step {
         return StepBuilder("stepRecupererLibelles", jobRepository)
@@ -30,7 +30,7 @@ class ConfigurationAspirateur {
     @Bean
     fun stepPersisterLibelles(
         jobRepository: JobRepository,
-        transactionManager: JdbcTransactionManager,
+        transactionManager: JpaTransactionManager,
         readerLibelle: ItemReader<Libelle>,
         writerLibelle: ItemWriter<Libelle>
     ): Step {

@@ -1,7 +1,7 @@
 package fr.fabien.aspirateur.cotations.configuration.step.reader
 
 import fr.fabien.aspirateur.cotations.configuration.step.tasklet.TaskletRecupererLibelles
-import fr.fabien.aspirateur.cotations.job.dto.Libelle
+import fr.fabien.aspirateur.cotations.dto.Libelle
 import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.file.FlatFileItemReader
