@@ -14,6 +14,7 @@ import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.UnexpectedJobExecutionException
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
+import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ByteArrayResource
@@ -28,26 +29,30 @@ class TaskletRecupererLibelles : Tasklet {
         private val logger = KotlinLogging.logger {}
         private val domain: String = "https://www.abcbourse.com"
         private val pathLibelles: String = "/download/libelles"
-        var token: String? = null
-        var encoding: Charset? = null
-        var csv: ByteArrayResource? = null
+        val ENCODING: String = "encoding"
+        val CSV: String = "csv"
+        private var token: String? = null
+        private var encoding: Charset? = null
+        private var csv: ByteArray? = null
     }
 
     override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus {
         return runBlocking {
-            requeteAbcBourse()
+            requeteAbcBourse(contribution.stepExecution.jobExecution.executionContext)
         }
     }
 
-    private suspend fun requeteAbcBourse(): RepeatStatus {
+    private suspend fun requeteAbcBourse(executionContext: ExecutionContext): RepeatStatus {
         val client = HttpClient(CIO) {
             install(HttpCookies)
         }
         getToken(client)
         logger.info { "RequestVerificationToken = $token" }
         getLibelles(client)
-        logger.info { "Libellés ($encoding)${System.lineSeparator()} ${csv!!.getContentAsString(encoding!!)}" }
+        logger.info { "Libellés ($encoding)${System.lineSeparator()} ${ByteArrayResource(csv!!).getContentAsString(encoding!!)}" }
         client.close()
+        executionContext.putString(ENCODING, encoding!!.name())
+        executionContext.put(CSV, csv)
         return RepeatStatus.FINISHED
     }
 
@@ -75,10 +80,8 @@ class TaskletRecupererLibelles : Tasklet {
         if (response.status.value == 200) {
             encoding = findEncoding(response)
             val bytes: ByteArray = response.body()
-            csv = ByteArrayResource(
-                GZIPInputStream(bytes.inputStream())
-                    .readAllBytes()
-            )
+            csv = GZIPInputStream(bytes.inputStream())
+                .readAllBytes()
         } else {
             throw UnexpectedJobExecutionException(response.toString())
         }
@@ -93,7 +96,6 @@ class TaskletRecupererLibelles : Tasklet {
                 append("cbox", "xcac40p")
                 append("cbPlace", "true")
                 append("__RequestVerificationToken", token!!)
-                append("cbPlace", "false")
             }
         ) {
             headers {

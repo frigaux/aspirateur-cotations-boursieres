@@ -16,6 +16,8 @@ import org.springframework.orm.jpa.JpaTransactionManager
 @Configuration
 class ConfigurationAspirateur {
 
+    // TODO : define 2 datasource : SB & app
+
     @Bean
     fun stepRecupererLibelles(
         jobRepository: JobRepository,
