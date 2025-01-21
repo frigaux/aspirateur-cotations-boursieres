@@ -13,14 +13,14 @@ class ConfigurationDataSourceBusiness {
     @Bean
     @Primary
     @ConfigurationProperties("business.datasource")
-    fun businessSourceProperties(): DataSourceProperties {
+    fun dataSourcePropertiesBusiness(): DataSourceProperties {
         return DataSourceProperties()
     }
 
     @Bean
     @Primary
     @ConfigurationProperties("business.datasource.configuration")
-    fun businessDataSource(businessSourceProperties: DataSourceProperties): HikariDataSource {
-        return businessSourceProperties.initializeDataSourceBuilder().type(HikariDataSource::class.java).build()
+    fun dataSourceBusiness(dataSourcePropertiesBusiness: DataSourceProperties): HikariDataSource {
+        return dataSourcePropertiesBusiness.initializeDataSourceBuilder().type(HikariDataSource::class.java).build()
     }
 }

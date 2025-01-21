@@ -12,17 +12,17 @@ import javax.sql.DataSource
 @Configuration(proxyBeanMethods = false)
 class ConfigurationDataSourceJobRepository {
 
-    @Qualifier("jobRepositorySourceProperties")
+    @Qualifier("dataSourcePropertiesJobRepository")
     @Bean(defaultCandidate = false)
     @ConfigurationProperties("job-repository.datasource")
-    fun jobRepositorySourceProperties(): DataSourceProperties {
+    fun dataSourcePropertiesJobRepository(): DataSourceProperties {
         return DataSourceProperties()
     }
 
     @Bean(defaultCandidate = false)
     @ConfigurationProperties("job-repository.datasource.configuration")
     @BatchDataSource
-    fun jobRepositoryDataSource(@Qualifier("jobRepositorySourceProperties") jobRepositorySourceProperties: DataSourceProperties): DataSource {
-        return jobRepositorySourceProperties.initializeDataSourceBuilder().build()
+    fun dataSourceJobRepository(@Qualifier("dataSourcePropertiesJobRepository") dataSourcePropertiesJobRepository: DataSourceProperties): DataSource {
+        return dataSourcePropertiesJobRepository.initializeDataSourceBuilder().build()
     }
 }
