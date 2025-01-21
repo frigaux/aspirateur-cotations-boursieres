@@ -1,40 +1,28 @@
 package fr.fabien.aspirateur.cotations.configuration
 
-import com.zaxxer.hikari.HikariDataSource
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.batch.BatchDataSource
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import javax.sql.DataSource
 
-
+// https://docs.spring.io/spring-boot/how-to/data-access.html#howto.data-access.configure-two-datasources
 @Configuration(proxyBeanMethods = false)
-class DataSourcesConfiguration {
+class ConfigurationDataSourceJobRepository {
 
-    @Bean
+    @Qualifier("jobRepositorySourceProperties")
+    @Bean(defaultCandidate = false)
     @ConfigurationProperties("job-repository.datasource")
     fun jobRepositorySourceProperties(): DataSourceProperties {
         return DataSourceProperties()
     }
 
-    @Bean
+    @Bean(defaultCandidate = false)
+    @ConfigurationProperties("job-repository.datasource.configuration")
     @BatchDataSource
-    fun jobRepositoryDataSource(jobRepositorySourceProperties: DataSourceProperties): DataSource {
+    fun jobRepositoryDataSource(@Qualifier("jobRepositorySourceProperties") jobRepositorySourceProperties: DataSourceProperties): DataSource {
         return jobRepositorySourceProperties.initializeDataSourceBuilder().build()
-    }
-
-
-    @Bean
-    @ConfigurationProperties("business.datasource")
-    fun businessSourceProperties(): DataSourceProperties {
-        return DataSourceProperties()
-    }
-
-    @Bean
-    @Primary
-    fun businessDataSource(businessSourceProperties: DataSourceProperties): HikariDataSource {
-        return businessSourceProperties.initializeDataSourceBuilder().type(HikariDataSource::class.java).build()
     }
 }
