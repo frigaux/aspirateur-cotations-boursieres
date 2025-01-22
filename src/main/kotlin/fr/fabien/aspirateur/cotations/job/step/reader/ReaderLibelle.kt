@@ -1,7 +1,8 @@
 package fr.fabien.aspirateur.cotations.configuration.step.reader
 
 import fr.fabien.aspirateur.cotations.configuration.step.tasklet.TaskletRecupererLibelles
-import fr.fabien.aspirateur.cotations.dto.Libelle
+import fr.fabien.aspirateur.cotations.dto.DtoLibelle
+import fr.fabien.aspirateur.cotations.repository.LibelleRepository
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.annotation.BeforeStep
 import org.springframework.batch.item.ExecutionContext
@@ -11,21 +12,22 @@ import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder
 import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 @Scope("singleton")
-class ReaderLibelle : ItemReader<Libelle> {
+class ReaderLibelle(private val libelleRepository: LibelleRepository) : ItemReader<DtoLibelle> {
     companion object {
         var executionContext: ExecutionContext? = null
-        val reader: FlatFileItemReader<Libelle> by lazy {
-            FlatFileItemReaderBuilder<Libelle>()
+        val reader: FlatFileItemReader<DtoLibelle> by lazy {
+            FlatFileItemReaderBuilder<DtoLibelle>()
                 .name("readerLibelle")
                 .resource(ByteArrayResource(executionContext!!.get(TaskletRecupererLibelles.CSV) as ByteArray))
                 .encoding(executionContext!!.getString(TaskletRecupererLibelles.ENCODING))
                 .delimited()
                 .delimiter(";")
                 .names("isin", "nom", "ticker")
-                .targetType(Libelle::class.java)
+                .targetType(DtoLibelle::class.java)
                 .linesToSkip(1)
                 .build()
                 .also { it.open(ExecutionContext()) }
@@ -35,9 +37,10 @@ class ReaderLibelle : ItemReader<Libelle> {
     @BeforeStep
     fun beforeStep(stepExecution: StepExecution) {
         executionContext = stepExecution.jobExecution.executionContext
+        libelleRepository.deleteByDate(executionContext!!.get(TaskletRecupererLibelles.DATE) as LocalDate);
     }
 
-    override fun read(): Libelle? {
+    override fun read(): DtoLibelle? {
         return reader.read()
     }
 }

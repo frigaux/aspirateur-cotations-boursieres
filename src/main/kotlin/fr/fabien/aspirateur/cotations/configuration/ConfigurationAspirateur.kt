@@ -1,6 +1,6 @@
 package fr.fabien.aspirateur.cotations.configuration
 
-import fr.fabien.aspirateur.cotations.dto.Libelle
+import fr.fabien.aspirateur.cotations.dto.DtoLibelle
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.JobBuilder
@@ -32,11 +32,11 @@ class ConfigurationAspirateur {
     fun stepPersisterLibelles(
         jobRepository: JobRepository,
         transactionManager: JpaTransactionManager,
-        readerLibelle: ItemReader<Libelle>,
-        writerLibelle: ItemWriter<Libelle>
+        readerLibelle: ItemReader<DtoLibelle>,
+        writerLibelle: ItemWriter<DtoLibelle>
     ): Step {
         return StepBuilder("stepPersisterLibelles", jobRepository)
-            .chunk<Libelle, Libelle>(10, transactionManager)
+            .chunk<DtoLibelle, DtoLibelle>(10, transactionManager)
             .reader(readerLibelle)
             .writer(writerLibelle)
             .build()

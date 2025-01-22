@@ -20,17 +20,20 @@ import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Component
 import java.nio.charset.Charset
+import java.time.LocalDate
 import java.util.zip.GZIPInputStream
 
 @Component
 @Scope("singleton")
 class TaskletRecupererLibelles : Tasklet {
     companion object {
+        val ENCODING: String = "encoding"
+        val CSV: String = "csv"
+        val DATE: String = "date"
+
         private val logger = KotlinLogging.logger {}
         private val domain: String = "https://www.abcbourse.com"
         private val pathLibelles: String = "/download/libelles"
-        val ENCODING: String = "encoding"
-        val CSV: String = "csv"
         private var token: String? = null
         private var encoding: Charset? = null
         private var csv: ByteArray? = null
@@ -53,6 +56,7 @@ class TaskletRecupererLibelles : Tasklet {
         client.close()
         executionContext.putString(ENCODING, encoding!!.name())
         executionContext.put(CSV, csv)
+        executionContext.put(DATE, LocalDate.now())
         return RepeatStatus.FINISHED
     }
 
