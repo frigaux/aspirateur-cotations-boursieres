@@ -12,7 +12,6 @@ import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder
 import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Component
-import java.time.LocalDate
 
 @Component
 @Scope("singleton")
@@ -37,7 +36,6 @@ class ReaderLibelle(private val libelleRepository: LibelleRepository) : ItemRead
     @BeforeStep
     fun beforeStep(stepExecution: StepExecution) {
         executionContext = stepExecution.jobExecution.executionContext
-        libelleRepository.deleteByDate(executionContext!!.get(TaskletRecupererLibelles.DATE) as LocalDate);
     }
 
     override fun read(): DtoLibelle? {
