@@ -21,10 +21,10 @@ class Libelle(
     val isin: String,
 
     @Column(nullable = false, length = 5)
-    val ticker: String,
+    var ticker: String,
 
     @Column(nullable = false, length = 100)
-    val nom: String,
+    var nom: String,
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
