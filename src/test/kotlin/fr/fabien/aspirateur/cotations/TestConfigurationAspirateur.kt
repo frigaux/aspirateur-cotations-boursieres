@@ -1,4 +1,4 @@
-package fr.fabien
+package fr.fabien.aspirateur.cotations
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -21,7 +21,7 @@ class TestConfigurationAspirateur {
     private val jobRepositoryTestUtils: JobRepositoryTestUtils? = null
 
     @Autowired
-    private val jobTasklet: Job? = null
+    private val jobMajLibelles: Job? = null
 
     @AfterTest
     fun tearDown() {
@@ -31,7 +31,7 @@ class TestConfigurationAspirateur {
     @Test
     @Throws(Exception::class)
     fun launchJob_WhenJobEnds_ThenStatusCompleted() {
-        jobLauncherTestUtils?.setJob(jobTasklet!!) // job is launch here ?!?
+        jobLauncherTestUtils?.setJob(jobMajLibelles!!) // job is launch here ?!?
         val jobExecution: JobExecution = jobLauncherTestUtils?.launchJob()!!
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
     }

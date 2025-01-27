@@ -11,7 +11,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.context.ApplicationContext
 import java.time.LocalDateTime
 
-
 // TODO : test not running + datasource test + mvn spring-boot:run + CommandLineJobRunner
 @SpringBootApplication
 class ApplicationAspirateur(val jobLauncher: JobLauncher, val applicationContext: ApplicationContext) : CommandLineRunner {
