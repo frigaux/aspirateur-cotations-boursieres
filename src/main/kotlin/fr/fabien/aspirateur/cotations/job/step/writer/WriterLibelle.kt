@@ -32,9 +32,8 @@ class WriterLibelle(private val libelleRepository: LibelleRepository) : ItemWrit
     // 2 - si pas d'id lors du save -> insert
     //     si id lors du save -> la session est utilisée pour savoir si l'entité a été modifiée -> update
     override fun write(dtoLibelles: Chunk<out DtoLibelle>) {
-        val date: LocalDate = executionContext!!.get(TaskletRecupererLibelles.DATE) as LocalDate
         val isins: List<String> = dtoLibelles.map { it.isin }
-        val libelleByIsin: Map<String, Libelle> = libelleRepository.findByDateAndIsinIn(date, isins)
+        val libelleByIsin: Map<String, Libelle> = libelleRepository.findByDateAndIsinIn(date!!, isins)
             .associateBy({ it.isin }, { it })
         for (dtoLibelle in dtoLibelles) {
             val entity: Libelle = libelleByIsin[dtoLibelle.isin]?.let {
@@ -42,7 +41,7 @@ class WriterLibelle(private val libelleRepository: LibelleRepository) : ItemWrit
                 it.ticker = dtoLibelle.ticker
                 it
             } ?: run {
-                Libelle(date, dtoLibelle.isin, dtoLibelle.ticker, dtoLibelle.nom)
+                Libelle(date!!, dtoLibelle.isin, dtoLibelle.ticker, dtoLibelle.nom)
             }
             libelleRepository.save(entity)
         }
