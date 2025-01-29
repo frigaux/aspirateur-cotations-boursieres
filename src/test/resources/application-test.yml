@@ -1,0 +1,19 @@
+logging:
+  config: "classpath:logback-test.xml"
+
+spring:
+  batch:
+    job:
+      enabled: false
+
+#spring:
+#  datasource:
+#    driver-class-name: "org.hsqldb.jdbc.JDBCDriver"
+#    url: "jdbc:hsqldb:hsql://localhost/testdb"
+#    username: sa
+#    password:
+
+#spring:
+#  jpa:
+#    hibernate:
+#      ddl-auto: update

@@ -8,10 +8,13 @@ import org.springframework.batch.test.JobRepositoryTestUtils
 import org.springframework.batch.test.context.SpringBatchTest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
 import kotlin.test.AfterTest
 
+@ActiveProfiles("test")
 @SpringBatchTest
 @SpringBootTest
+//@SpringBootTest(classes = [ConfigurationAspirateur::class])
 class TestConfigurationAspirateur {
 
     @Autowired
@@ -33,6 +36,9 @@ class TestConfigurationAspirateur {
     fun launchJob_WhenJobEnds_ThenStatusCompleted() {
         jobLauncherTestUtils?.setJob(jobMajLibelles!!) // job is launch here ?!?
         val jobExecution: JobExecution = jobLauncherTestUtils?.launchJob()!!
+        // TODO : check table not empty !
+        // TODO : check starting spring boot log
+        // TODO : it works with a wrong configuration ? ConfigurationDataSourceBusiness & ConfigurationDataSourceJobRepository
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
     }
 }
