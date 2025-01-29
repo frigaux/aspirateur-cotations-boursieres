@@ -37,8 +37,6 @@ class TestConfigurationAspirateur {
         jobLauncherTestUtils?.setJob(jobMajLibelles!!) // job is launch here ?!?
         val jobExecution: JobExecution = jobLauncherTestUtils?.launchJob()!!
         // TODO : check table not empty !
-        // TODO : check starting spring boot log
-        // TODO : it works with a wrong configuration ? ConfigurationDataSourceBusiness & ConfigurationDataSourceJobRepository
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
     }
 }
