@@ -3,8 +3,8 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
-    <root level="INFO">
+    <root level="ERROR">
         <appender-ref ref="CONSOLE" />
     </root>
-    <logger name="fr.fabien.aspirateur.cotations" level="DEBUG"/>
+    <logger name="fr.fabien.aspirateur.cotations" level="INFO"/>
 </configuration>
