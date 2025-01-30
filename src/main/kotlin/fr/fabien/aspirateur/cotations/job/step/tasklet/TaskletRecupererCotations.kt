@@ -23,11 +23,12 @@ import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Component
 import java.nio.charset.Charset
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.zip.GZIPInputStream
 
 @Component
 @Scope("singleton")
-class TaskletRecupererLibelles : Tasklet {
+class TaskletRecupererCotations : Tasklet {
     @Autowired
     val serviceAbcBourse: ServiceAbcBourse? = null
 
@@ -38,7 +39,7 @@ class TaskletRecupererLibelles : Tasklet {
 
         private val logger = KotlinLogging.logger {}
         private val domain: String = "https://www.abcbourse.com"
-        private val pathLibelles: String = "/download/libelles"
+        private val pathLibelles: String = "/download/historiques"
         private var token: String? = null
         private var encoding: Charset? = null
         private var csv: ByteArray? = null
@@ -56,18 +57,19 @@ class TaskletRecupererLibelles : Tasklet {
         }
         token = serviceAbcBourse!!.getToken(client, domain + pathLibelles)
         logger.info { "RequestVerificationToken = $token" }
-        getLibelles(client)
-        logger.info { "Libellés ($encoding)${System.lineSeparator()} ${ByteArrayResource(csv!!).getContentAsString(encoding!!)}" }
+        val date: LocalDate = LocalDate.now()
+        getCotations(client, date)
+        logger.info { "Cotations ($encoding)${System.lineSeparator()} ${ByteArrayResource(csv!!).getContentAsString(encoding!!)}" }
         client.close()
         executionContext.putString(ENCODING, encoding!!.name())
         executionContext.put(CSV, csv)
-        executionContext.put(DATE, LocalDate.now())
+        executionContext.put(DATE, date)
         return RepeatStatus.FINISHED
     }
 
-    private suspend fun getLibelles(client: HttpClient) {
-        val response: HttpResponse = submitFormLibelles(client)
-        if (response.status.value == 200) {
+    private suspend fun getCotations(client: HttpClient, date: LocalDate) {
+        val response: HttpResponse = submitFormLibelles(client, date)
+        if (response.status.value == 200) { // TODO : check date in filename = date
             encoding = serviceAbcBourse!!.findEncoding(response)
             val bytes: ByteArray = response.body()
             csv = GZIPInputStream(bytes.inputStream())
@@ -77,17 +79,24 @@ class TaskletRecupererLibelles : Tasklet {
         }
     }
 
-    private suspend fun submitFormLibelles(client: HttpClient): HttpResponse {
+    private suspend fun submitFormLibelles(client: HttpClient, date: LocalDate): HttpResponse {
         // https://ktor.io/docs/client-requests.html#form_parameters
         // https://ktor.io/docs/client-responses.html#streaming
+        val strDate: String = date.format(DateTimeFormatter.ISO_DATE)
         val response: HttpResponse = client.submitForm(
             url = domain + pathLibelles,
             formParameters = parameters {
-//                append("cbox", "xcac40p")
+                append("dateFrom", strDate)
+                append("__Invariant", "dateFrom")
+                append("dateTo", strDate)
+                append("__Invariant", "dateTo")
                 append("cbox", "eurolistap")
                 append("cbox", "eurolistbp")
                 append("cbox", "eurolistcp")
-                append("cbPlace", "true")
+                append("txtOneSico", "")
+                append("sFormat", "ab")
+                append("typeData", "ticker")
+                append("cbYes", "false")
                 append("__RequestVerificationToken", token!!)
             }
         ) {

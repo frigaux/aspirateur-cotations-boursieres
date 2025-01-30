@@ -52,4 +52,25 @@ class ConfigurationAspirateur {
             .next(stepPersisterLibelles)
             .build()
     }
+
+    @Bean
+    fun stepRecupererCotations(
+        jobRepository: JobRepository,
+        transactionManager: JpaTransactionManager,
+        taskletRecupererCotations: Tasklet
+    ): Step {
+        return StepBuilder("stepRecupererCotations", jobRepository)
+            .tasklet(taskletRecupererCotations, transactionManager)
+            .build()
+    }
+
+    @Bean
+    fun jobMajCotations(
+        jobRepository: JobRepository,
+        stepRecupererCotations: Step
+    ): Job {
+        return JobBuilder("jobMajCotations", jobRepository)
+            .start(stepRecupererCotations)
+            .build()
+    }
 }

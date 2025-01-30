@@ -1,6 +1,6 @@
 package fr.fabien.aspirateur.cotations
 
-import fr.fabien.aspirateur.cotations.repository.LibelleRepository
+import fr.fabien.aspirateur.cotations.repository.RepositoryLibelle
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.batch.core.*
@@ -22,7 +22,7 @@ class TestConfigurationAspirateur {
     private val jobMajLibelles: Job? = null
 
     @Autowired
-    private val libelleRepository: LibelleRepository? = null
+    private val repositoryLibelle: RepositoryLibelle? = null
 
     @Test
     @Throws(Exception::class)
@@ -30,6 +30,6 @@ class TestConfigurationAspirateur {
         jobLauncherTestUtils!!.setJob(jobMajLibelles!!)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob()
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
-        Assertions.assertTrue(libelleRepository!!.count() > 0)
+        Assertions.assertTrue(repositoryLibelle!!.count() > 0)
     }
 }

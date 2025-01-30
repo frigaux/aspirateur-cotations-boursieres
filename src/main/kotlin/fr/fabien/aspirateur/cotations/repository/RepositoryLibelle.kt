@@ -4,6 +4,6 @@ import fr.fabien.aspirateur.cotations.entity.Libelle
 import org.springframework.data.repository.CrudRepository
 import java.time.LocalDate
 
-interface LibelleRepository : CrudRepository<Libelle, Int> {
-    fun findByDateAndIsinIn(date: LocalDate, isins: List<String>): List<Libelle>
+interface RepositoryLibelle : CrudRepository<Libelle, Int> {
+    fun findByDateAndTickerIn(date: LocalDate, tickers: List<String>): List<Libelle>
 }

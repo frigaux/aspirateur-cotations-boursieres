@@ -7,9 +7,7 @@ import java.time.LocalDate
 @Table(
     indexes = arrayOf(Index(columnList = "date")),
     uniqueConstraints = arrayOf(
-        UniqueConstraint(name = "UniqueDateAndIsin", columnNames = arrayOf("date", "isin")),
-        UniqueConstraint(name = "UniqueDateAndTicker", columnNames = arrayOf("date", "ticker")),
-        UniqueConstraint(name = "UniqueDateAndNom", columnNames = arrayOf("date", "nom"))
+        UniqueConstraint(name = "UniqueDateAndTicker", columnNames = arrayOf("date", "ticker"))
     )
 )
 class Libelle(
@@ -17,11 +15,11 @@ class Libelle(
     @Column(nullable = false, updatable = false)
     val date: LocalDate,
 
-    @Column(nullable = false, updatable = false, length = 13)
-    val isin: String,
+    @Column(nullable = false, length = 13)
+    var isin: String,
 
-    @Column(nullable = false, length = 5)
-    var ticker: String,
+    @Column(nullable = false, updatable = false, length = 5)
+    val ticker: String,
 
     @Column(nullable = false, length = 100)
     var nom: String,
