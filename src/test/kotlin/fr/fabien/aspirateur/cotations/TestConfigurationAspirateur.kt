@@ -27,7 +27,7 @@ class TestConfigurationAspirateur {
     @Test
     @Throws(Exception::class)
     fun launchJob_WhenJobEnds_ThenStatusCompleted() {
-        jobLauncherTestUtils!!.setJob(jobMajLibelles!!) // job is launch here ?!?
+        jobLauncherTestUtils!!.setJob(jobMajLibelles!!)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob()
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
         Assertions.assertTrue(libelleRepository!!.count() > 0)
