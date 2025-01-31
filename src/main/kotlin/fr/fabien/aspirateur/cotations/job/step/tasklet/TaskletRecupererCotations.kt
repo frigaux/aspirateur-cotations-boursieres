@@ -33,7 +33,7 @@ class TaskletRecupererCotations : Tasklet {
     val serviceAbcBourse: ServiceAbcBourse? = null
 
     companion object {
-        val ENCODING: String = "encoding"
+        val CHARSET: String = "charset"
         val CSV: String = "csv"
         val DATE: String = "date"
 
@@ -41,7 +41,7 @@ class TaskletRecupererCotations : Tasklet {
         private val domain: String = "https://www.abcbourse.com"
         private val pathLibelles: String = "/download/historiques"
         private var token: String? = null
-        private var encoding: Charset? = null
+        private var charset: Charset? = null
         private var csv: ByteArray? = null
     }
 
@@ -59,9 +59,9 @@ class TaskletRecupererCotations : Tasklet {
         logger.info { "RequestVerificationToken = $token" }
         val date: LocalDate = LocalDate.now()
         getCotations(client, date)
-        logger.info { "Cotations ($encoding)${System.lineSeparator()} ${ByteArrayResource(csv!!).getContentAsString(encoding!!)}" }
+        logger.info { "Cotations ($charset)${System.lineSeparator()} ${ByteArrayResource(csv!!).getContentAsString(charset!!)}" }
         client.close()
-        executionContext.putString(ENCODING, encoding!!.name())
+        executionContext.putString(CHARSET, charset!!.name())
         executionContext.put(CSV, csv)
         executionContext.put(DATE, date)
         return RepeatStatus.FINISHED
@@ -69,8 +69,15 @@ class TaskletRecupererCotations : Tasklet {
 
     private suspend fun getCotations(client: HttpClient, date: LocalDate) {
         val response: HttpResponse = submitFormLibelles(client, date)
-        if (response.status.value == 200) { // TODO : check date in filename = date
-            encoding = serviceAbcBourse!!.findEncoding(response)
+        if (response.status.value == 200) {
+            charset = serviceAbcBourse!!.findCharset(response)
+            serviceAbcBourse!!.findError(response, charset!!)?.let{
+                throw UnexpectedJobExecutionException(it)
+            }
+            val filename = serviceAbcBourse!!.findFilename(response)
+            if (!filename.contains(date.format(DateTimeFormatter.BASIC_ISO_DATE))) {
+                throw UnexpectedJobExecutionException("Le nom du fichier $filename ne correspond pas à la date demandée $date")
+            }
             val bytes: ByteArray = response.body()
             csv = GZIPInputStream(bytes.inputStream())
                 .readAllBytes()

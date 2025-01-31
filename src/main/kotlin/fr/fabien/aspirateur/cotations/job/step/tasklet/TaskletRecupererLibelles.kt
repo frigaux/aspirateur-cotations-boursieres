@@ -32,7 +32,7 @@ class TaskletRecupererLibelles : Tasklet {
     val serviceAbcBourse: ServiceAbcBourse? = null
 
     companion object {
-        val ENCODING: String = "encoding"
+        val CHARSET: String = "charset"
         val CSV: String = "csv"
         val DATE: String = "date"
 
@@ -40,7 +40,7 @@ class TaskletRecupererLibelles : Tasklet {
         private val domain: String = "https://www.abcbourse.com"
         private val pathLibelles: String = "/download/libelles"
         private var token: String? = null
-        private var encoding: Charset? = null
+        private var charset: Charset? = null
         private var csv: ByteArray? = null
     }
 
@@ -57,9 +57,9 @@ class TaskletRecupererLibelles : Tasklet {
         token = serviceAbcBourse!!.getToken(client, domain + pathLibelles)
         logger.info { "RequestVerificationToken = $token" }
         getLibelles(client)
-        logger.info { "Libellés ($encoding)${System.lineSeparator()} ${ByteArrayResource(csv!!).getContentAsString(encoding!!)}" }
+        logger.info { "Libellés ($charset)${System.lineSeparator()} ${ByteArrayResource(csv!!).getContentAsString(charset!!)}" }
         client.close()
-        executionContext.putString(ENCODING, encoding!!.name())
+        executionContext.putString(CHARSET, charset!!.name())
         executionContext.put(CSV, csv)
         executionContext.put(DATE, LocalDate.now())
         return RepeatStatus.FINISHED
@@ -68,7 +68,7 @@ class TaskletRecupererLibelles : Tasklet {
     private suspend fun getLibelles(client: HttpClient) {
         val response: HttpResponse = submitFormLibelles(client)
         if (response.status.value == 200) {
-            encoding = serviceAbcBourse!!.findEncoding(response)
+            charset = serviceAbcBourse!!.findCharset(response)
             val bytes: ByteArray = response.body()
             csv = GZIPInputStream(bytes.inputStream())
                 .readAllBytes()

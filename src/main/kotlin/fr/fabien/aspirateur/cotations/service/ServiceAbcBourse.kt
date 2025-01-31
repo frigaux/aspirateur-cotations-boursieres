@@ -28,22 +28,66 @@ class ServiceAbcBourse {
         }
     }
 
-    public suspend fun findEncoding(response: HttpResponse): Charset {
-        val regexpToken = "filename\\*=(.*)''"
-        val contentDisposition : String? = response.headers.get("content-disposition")
-        return contentDisposition?.let {
-            regexpToken
+    public suspend fun findCharset(response: HttpResponse): Charset {
+        val regexpContentType = "charset=(.+)"
+        val contentType: String? = response.headers.get("content-type")
+        return contentType?.let {
+            regexpContentType
                 .toRegex()
                 .find(it)
                 ?.let {
                     Charset.forName(it.groups[1]!!.value)
                 }
                 ?: run {
-                    throw UnexpectedJobExecutionException("Encoding not found in contentDisposition : $contentDisposition")
+                    val regexpContentDisposition = "filename\\*=(.+)''"
+                    val contentDisposition: String? = response.headers.get("content-disposition")
+                    return contentDisposition?.let {
+                        regexpContentDisposition
+                            .toRegex()
+                            .find(it)
+                            ?.let {
+                                Charset.forName(it.groups[1]!!.value)
+                            }
+                            ?: run {
+                                throw UnexpectedJobExecutionException("Charset not found in contentDisposition : $contentDisposition")
+                            }
+                    }
+                        ?: run {
+                            throw UnexpectedJobExecutionException("content-disposition not found in response headers : ${response.headers}")
+                        }
+                }
+        }
+            ?: run {
+                throw UnexpectedJobExecutionException("content-type not found in response headers : ${response.headers}")
+            }
+    }
+
+    public suspend fun findFilename(response: HttpResponse): String {
+        val regexpFilename = "filename=([^;]+);"
+        val contentDisposition: String? = response.headers.get("content-disposition")
+        return contentDisposition?.let {
+            regexpFilename
+                .toRegex()
+                .find(it)
+                ?.let {
+                    it.groups[1]!!.value
+                }
+                ?: run {
+                    throw UnexpectedJobExecutionException("Filename not found in contentDisposition : $contentDisposition")
                 }
         }
             ?: run {
                 throw UnexpectedJobExecutionException("content-disposition not found in response headers : ${response.headers}")
+            }
+    }
+
+    public suspend fun findError(response: HttpResponse, charset: Charset): String? {
+        val regexpError = " id=\"lblerror\">([^<]+)</p>"
+        return regexpError
+            .toRegex()
+            .find(response.bodyAsText(charset))
+            ?.let {
+                it.groups[1]!!.value
             }
     }
 }

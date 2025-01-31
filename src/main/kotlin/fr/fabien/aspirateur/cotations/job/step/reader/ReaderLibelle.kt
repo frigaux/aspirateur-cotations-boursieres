@@ -22,7 +22,7 @@ class ReaderLibelle(private val repositoryLibelle: RepositoryLibelle) : ItemRead
             FlatFileItemReaderBuilder<DtoLibelle>()
                 .name("readerLibelle")
                 .resource(ByteArrayResource(executionContext!!.get(TaskletRecupererLibelles.CSV) as ByteArray))
-                .encoding(executionContext!!.getString(TaskletRecupererLibelles.ENCODING))
+                .encoding(executionContext!!.getString(TaskletRecupererLibelles.CHARSET))
                 .delimited()
                 .delimiter(";")
                 .names("isin", "nom", "ticker")
