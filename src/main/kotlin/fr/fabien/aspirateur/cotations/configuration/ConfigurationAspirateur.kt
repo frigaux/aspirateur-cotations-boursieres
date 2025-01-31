@@ -1,5 +1,6 @@
 package fr.fabien.aspirateur.cotations.configuration
 
+import fr.fabien.aspirateur.cotations.dto.DtoCotation
 import fr.fabien.aspirateur.cotations.dto.DtoLibelle
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
@@ -12,6 +13,7 @@ import org.springframework.batch.item.ItemWriter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.orm.jpa.JpaTransactionManager
+
 
 @Configuration
 class ConfigurationAspirateur {
@@ -65,12 +67,28 @@ class ConfigurationAspirateur {
     }
 
     @Bean
+    fun stepPersisterCotations(
+        jobRepository: JobRepository,
+        transactionManager: JpaTransactionManager,
+        readerCotation: ItemReader<DtoCotation>,
+        writerCotation: ItemWriter<DtoCotation>
+    ): Step {
+        return StepBuilder("stepPersisterCotations", jobRepository)
+            .chunk<DtoCotation, DtoCotation>(10, transactionManager)
+            .reader(readerCotation)
+            .writer(writerCotation)
+            .build()
+    }
+
+    @Bean
     fun jobMajCotations(
         jobRepository: JobRepository,
-        stepRecupererCotations: Step
+        stepRecupererCotations: Step,
+        stepPersisterCotations: Step
     ): Job {
         return JobBuilder("jobMajCotations", jobRepository)
             .start(stepRecupererCotations)
+            .next(stepPersisterCotations)
             .build()
     }
 }

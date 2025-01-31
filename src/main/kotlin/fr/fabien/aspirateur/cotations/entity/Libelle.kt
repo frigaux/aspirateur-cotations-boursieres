@@ -15,14 +15,18 @@ class Libelle(
     @Column(nullable = false, updatable = false)
     val date: LocalDate,
 
-    @Column(nullable = false, length = 13)
-    var isin: String,
-
     @Column(nullable = false, updatable = false, length = 5)
     val ticker: String,
 
+    @Column(nullable = false, length = 13)
+    var isin: String,
+
     @Column(nullable = false, length = 100)
     var nom: String,
+
+    @OneToOne(optional = true)
+    @JoinColumn(name="id_cotation")
+    val cotation: Cotation? = null,
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

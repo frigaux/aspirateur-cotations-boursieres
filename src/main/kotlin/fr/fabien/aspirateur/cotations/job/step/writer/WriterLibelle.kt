@@ -41,7 +41,7 @@ class WriterLibelle(private val repositoryLibelle: RepositoryLibelle) : ItemWrit
                 it.nom = dtoLibelle.nom
                 it
             } ?: run {
-                Libelle(date!!, dtoLibelle.isin, dtoLibelle.ticker, dtoLibelle.nom)
+                Libelle(date!!, dtoLibelle.ticker, dtoLibelle.isin, dtoLibelle.nom)
             }
             repositoryLibelle.save(entity)
         }

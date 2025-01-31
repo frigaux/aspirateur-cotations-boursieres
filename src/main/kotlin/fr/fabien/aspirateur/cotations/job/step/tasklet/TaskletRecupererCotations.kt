@@ -35,7 +35,6 @@ class TaskletRecupererCotations : Tasklet {
     companion object {
         val CHARSET: String = "charset"
         val CSV: String = "csv"
-        val DATE: String = "date"
 
         private val logger = KotlinLogging.logger {}
         private val domain: String = "https://www.abcbourse.com"
@@ -63,7 +62,6 @@ class TaskletRecupererCotations : Tasklet {
         client.close()
         executionContext.putString(CHARSET, charset!!.name())
         executionContext.put(CSV, csv)
-        executionContext.put(DATE, date)
         return RepeatStatus.FINISHED
     }
 

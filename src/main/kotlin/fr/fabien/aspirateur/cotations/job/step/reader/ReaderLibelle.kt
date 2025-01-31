@@ -2,7 +2,6 @@ package fr.fabien.aspirateur.cotations.configuration.step.reader
 
 import fr.fabien.aspirateur.cotations.configuration.step.tasklet.TaskletRecupererLibelles
 import fr.fabien.aspirateur.cotations.dto.DtoLibelle
-import fr.fabien.aspirateur.cotations.repository.RepositoryLibelle
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.annotation.BeforeStep
 import org.springframework.batch.item.ExecutionContext
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @Scope("singleton")
-class ReaderLibelle(private val repositoryLibelle: RepositoryLibelle) : ItemReader<DtoLibelle> {
+class ReaderLibelle : ItemReader<DtoLibelle> {
     companion object {
         var executionContext: ExecutionContext? = null
         val reader: FlatFileItemReader<DtoLibelle> by lazy {
