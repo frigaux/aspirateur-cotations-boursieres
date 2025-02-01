@@ -1,6 +1,6 @@
-package fr.fabien.aspirateur.cotations.configuration.step.reader
+package fr.fabien.aspirateur.cotations.job.step.reader
 
-import fr.fabien.aspirateur.cotations.configuration.step.tasklet.TaskletRecupererLibelles
+import fr.fabien.aspirateur.cotations.job.step.tasklet.TaskletRecupererLibelles
 import fr.fabien.aspirateur.cotations.dto.DtoLibelle
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.annotation.BeforeStep

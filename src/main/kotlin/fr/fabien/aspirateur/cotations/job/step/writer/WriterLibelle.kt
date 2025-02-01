@@ -1,13 +1,12 @@
-package fr.fabien.aspirateur.cotations.configuration.step.writer
+package fr.fabien.aspirateur.cotations.job.step.writer
 
-import fr.fabien.aspirateur.cotations.configuration.step.tasklet.TaskletRecupererLibelles
+import fr.fabien.aspirateur.cotations.ApplicationAspirateur
 import fr.fabien.aspirateur.cotations.dto.DtoLibelle
 import fr.fabien.aspirateur.cotations.entity.Libelle
 import fr.fabien.aspirateur.cotations.repository.RepositoryLibelle
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.annotation.BeforeStep
 import org.springframework.batch.item.Chunk
-import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.item.ItemWriter
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -17,14 +16,15 @@ import java.time.LocalDate
 @Scope("singleton")
 class WriterLibelle(private val repositoryLibelle: RepositoryLibelle) : ItemWriter<DtoLibelle> {
     companion object {
-        var executionContext: ExecutionContext? = null
-        var date: LocalDate? = null
+        var stepExecution: StepExecution? = null
+        val date: LocalDate by lazy {
+            stepExecution!!.jobParameters.getLocalDate(ApplicationAspirateur.DATE)!!
+        }
     }
 
     @BeforeStep
     fun beforeStep(stepExecution: StepExecution) {
-        executionContext = stepExecution.jobExecution.executionContext
-        date = executionContext!!.get(TaskletRecupererLibelles.DATE) as LocalDate
+        Companion.stepExecution = stepExecution
     }
 
     // cette méthode est appelée dans une transaction

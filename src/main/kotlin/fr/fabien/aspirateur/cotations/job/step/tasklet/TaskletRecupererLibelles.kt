@@ -1,4 +1,4 @@
-package fr.fabien.aspirateur.cotations.configuration.step.tasklet
+package fr.fabien.aspirateur.cotations.job.step.tasklet
 
 import fr.fabien.aspirateur.cotations.service.ServiceAbcBourse
 import io.ktor.client.*
@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Component
 import java.nio.charset.Charset
-import java.time.LocalDate
 import java.util.zip.GZIPInputStream
 
 @Component
@@ -32,9 +31,9 @@ class TaskletRecupererLibelles : Tasklet {
     val serviceAbcBourse: ServiceAbcBourse? = null
 
     companion object {
+        // job execution context keys
         val CHARSET: String = "charset"
         val CSV: String = "csv"
-        val DATE: String = "date"
 
         private val logger = KotlinLogging.logger {}
         private val domain: String = "https://www.abcbourse.com"
@@ -61,7 +60,6 @@ class TaskletRecupererLibelles : Tasklet {
         client.close()
         executionContext.putString(CHARSET, charset!!.name())
         executionContext.put(CSV, csv)
-        executionContext.put(DATE, LocalDate.now())
         return RepeatStatus.FINISHED
     }
 
@@ -83,7 +81,6 @@ class TaskletRecupererLibelles : Tasklet {
         val response: HttpResponse = client.submitForm(
             url = domain + pathLibelles,
             formParameters = parameters {
-//                append("cbox", "xcac40p")
                 append("cbox", "eurolistap")
                 append("cbox", "eurolistbp")
                 append("cbox", "eurolistcp")

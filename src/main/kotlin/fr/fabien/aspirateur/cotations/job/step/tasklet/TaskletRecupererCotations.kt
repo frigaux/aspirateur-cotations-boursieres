@@ -1,5 +1,6 @@
-package fr.fabien.aspirateur.cotations.configuration.step.tasklet
+package fr.fabien.aspirateur.cotations.job.step.tasklet
 
+import fr.fabien.aspirateur.cotations.ApplicationAspirateur
 import fr.fabien.aspirateur.cotations.service.ServiceAbcBourse
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -33,6 +34,7 @@ class TaskletRecupererCotations : Tasklet {
     val serviceAbcBourse: ServiceAbcBourse? = null
 
     companion object {
+        // job execution context keys
         val CHARSET: String = "charset"
         val CSV: String = "csv"
 
@@ -46,17 +48,17 @@ class TaskletRecupererCotations : Tasklet {
 
     override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus {
         return runBlocking {
-            requeteAbcBourse(contribution.stepExecution.jobExecution.executionContext)
+            val date: LocalDate = contribution.stepExecution.jobParameters.getLocalDate(ApplicationAspirateur.DATE)!!
+            requeteAbcBourse(contribution.stepExecution.jobExecution.executionContext, date)
         }
     }
 
-    private suspend fun requeteAbcBourse(executionContext: ExecutionContext): RepeatStatus {
+    private suspend fun requeteAbcBourse(executionContext: ExecutionContext, date: LocalDate): RepeatStatus {
         val client = HttpClient(CIO) {
             install(HttpCookies)
         }
         token = serviceAbcBourse!!.getToken(client, domain + pathLibelles)
         logger.info { "RequestVerificationToken = $token" }
-        val date: LocalDate = LocalDate.now()
         getCotations(client, date)
         logger.info { "Cotations ($charset)${System.lineSeparator()} ${ByteArrayResource(csv!!).getContentAsString(charset!!)}" }
         client.close()
