@@ -13,6 +13,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.system.exitProcess
 
+// TODO : soumettre à spring : FlatFileItemReader.build ne fait pas de check fieldSetMapper si pas de targetType
 // TODO : test unitaires pour récupérer les cotations (attention à la date qui doit être un jour avec cotation !)
 // TODO : job aggrégation libelle / cotation
 // TODO : JOB moyenne mobile
@@ -32,7 +33,7 @@ class ApplicationAspirateur(val jobLauncher: JobLauncher, val context: Applicati
             .addLocalDate(DATE, LocalDate.parse(strDate, formatter))
             .toJobParameters()
         val jobLauncher: JobLauncher = context.getBean("jobLauncher") as JobLauncher
-        jobLauncher.run(job, jobParameters);
+        jobLauncher.run(job, jobParameters)
     }
 }
 
