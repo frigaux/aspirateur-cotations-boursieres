@@ -24,9 +24,9 @@ class Libelle(
     @Column(nullable = false, length = 100)
     var nom: String,
 
-    @OneToOne(optional = true)
+    @OneToOne(optional = true, cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name="id_cotation")
-    val cotation: Cotation? = null,
+    var cotation: Cotation? = null,
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

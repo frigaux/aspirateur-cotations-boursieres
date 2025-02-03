@@ -13,7 +13,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.system.exitProcess
 
-// TODO : soumettre à spring : FlatFileItemReader.build ne fait pas de check fieldSetMapper si pas de targetType
 // TODO : test unitaires pour récupérer les cotations (attention à la date qui doit être un jour avec cotation !)
 // TODO : job aggrégation libelle / cotation
 // TODO : JOB moyenne mobile
