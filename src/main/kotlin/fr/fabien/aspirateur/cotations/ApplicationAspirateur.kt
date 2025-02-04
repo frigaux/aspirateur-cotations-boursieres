@@ -13,7 +13,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.system.exitProcess
 
-// TODO : test unitaires pour récupérer les cotations (attention à la date qui doit être un jour avec cotation !)
 // TODO : job aggrégation libelle / cotation
 // TODO : JOB moyenne mobile
 @SpringBootApplication
@@ -24,19 +23,26 @@ class ApplicationAspirateur(val jobLauncher: JobLauncher, val context: Applicati
     }
 
     override fun run(vararg args: String) {
-        val jobName: String = System.getenv("JOB_NAME")
-        val strDate: String = System.getenv("DATE")
-        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-        val job: Job = context.getBean(jobName) as Job
-        val jobParameters = JobParametersBuilder()
-            .addLocalDate(DATE, LocalDate.parse(strDate, formatter))
-            .toJobParameters()
-        val jobLauncher: JobLauncher = context.getBean("jobLauncher") as JobLauncher
-        jobLauncher.run(job, jobParameters)
+        val jobName: String? = System.getenv("JOB_NAME")
+        val strDate: String? = System.getenv("DATE")
+        if (jobName != null && strDate != null) {
+            val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+            val job: Job = context.getBean(jobName) as Job
+            val jobParameters = JobParametersBuilder()
+                .addLocalDate(DATE, LocalDate.parse(strDate, formatter))
+                .toJobParameters()
+            jobLauncher.run(job, jobParameters)
+        }
     }
 }
 
-// -Dspring.config.name=configuration -Dspring.profiles.active=dev
+/**
+ * "mvn spring-boot:run" appelle la méthode "main".
+ * "com.intellij.rt.junit.JUnitStarter" ou "mvn test" n'appellent pas La méthode "main".
+ * https://www.baeldung.com/spring-profiles
+ * On peut spécifier le profil avec la JVM System Parameter "-Dspring.profiles.active=dev".
+ * @param args command line arguments pour SpringApplicationBuilder
+ */
 fun main(vararg args: String) {
     if (System.getenv("JOB_NAME") == null || System.getenv("DATE") == null) {
         KotlinLogging.logger {}.error { "Variables d'environnement manquantes : JOB_NAME et DATE (dd/MM/yyyy)" }
