@@ -1,8 +1,8 @@
 package fr.fabien.aspirateur.cotations
 
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur.Companion.DATE
-import fr.fabien.aspirateur.cotations.repository.RepositoryCotation
-import fr.fabien.aspirateur.cotations.repository.RepositoryLibelle
+import fr.fabien.aspirateur.cotations.repository.RepositoryAbcCotation
+import fr.fabien.aspirateur.cotations.repository.RepositoryAbcLibelle
 import org.junit.jupiter.api.*
 import org.springframework.batch.core.*
 import org.springframework.batch.test.JobLauncherTestUtils
@@ -25,10 +25,10 @@ import java.time.LocalDate
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class TestConfigurationAspirateur(
     @Autowired private val jobLauncherTestUtils: JobLauncherTestUtils,
-    @Autowired private val jobMajLibelles: Job,
-    @Autowired private val jobMajCotations: Job,
-    @Autowired private val repositoryLibelle: RepositoryLibelle,
-    @Autowired private val repositoryCotation: RepositoryCotation
+    @Autowired private val jobMajAbcLibelles: Job,
+    @Autowired private val jobMajAbcCotations: Job,
+    @Autowired private val repositoryAbcLibelle: RepositoryAbcLibelle,
+    @Autowired private val repositoryAbcCotation: RepositoryAbcCotation
 ) {
 
     companion object {
@@ -51,19 +51,19 @@ class TestConfigurationAspirateur(
     @Order(1)
     @Throws(Exception::class)
     fun launchJobMajLibelles_WhenJobEnds_ThenThereAreLibelleInRepository() {
-        jobLauncherTestUtils.setJob(jobMajLibelles)
+        jobLauncherTestUtils.setJob(jobMajAbcLibelles)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
-        Assertions.assertTrue(repositoryLibelle.count() > 0)
+        Assertions.assertTrue(repositoryAbcLibelle.count() > 0)
     }
 
     @Test
     @Order(2)
     @Throws(Exception::class)
     fun launchJobMajCotations_WhenJobEnds_ThenThereAreCotationInRepository() {
-        jobLauncherTestUtils.setJob(jobMajCotations)
+        jobLauncherTestUtils.setJob(jobMajAbcCotations)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
-        Assertions.assertTrue(repositoryCotation.count() > 0)
+        Assertions.assertTrue(repositoryAbcCotation.count() > 0)
     }
 }

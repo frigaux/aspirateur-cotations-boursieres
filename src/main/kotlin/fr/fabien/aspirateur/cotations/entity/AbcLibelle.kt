@@ -10,7 +10,7 @@ import java.time.LocalDate
         UniqueConstraint(name = "UniqueDateAndTicker", columnNames = arrayOf("date", "ticker"))
     )
 )
-class Libelle(
+class AbcLibelle(
     @Temporal(TemporalType.DATE)
     @Column(nullable = false, updatable = false)
     val date: LocalDate,
@@ -21,12 +21,15 @@ class Libelle(
     @Column(nullable = false, length = 13)
     var isin: String,
 
+    @Column(nullable = false, updatable = false, length = 30)
+    val marche: String,
+
     @Column(nullable = false, length = 100)
     var nom: String,
 
     @OneToOne(optional = true, cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name="id_cotation")
-    var cotation: Cotation? = null,
+    var abcCotation: AbcCotation? = null,
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

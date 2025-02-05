@@ -1,9 +1,9 @@
 package fr.fabien.aspirateur.cotations.job.step.writer
 
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur
-import fr.fabien.aspirateur.cotations.dto.DtoLibelle
-import fr.fabien.aspirateur.cotations.entity.Libelle
-import fr.fabien.aspirateur.cotations.repository.RepositoryLibelle
+import fr.fabien.aspirateur.cotations.dto.DtoAbcLibelle
+import fr.fabien.aspirateur.cotations.entity.AbcLibelle
+import fr.fabien.aspirateur.cotations.repository.RepositoryAbcLibelle
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.annotation.BeforeStep
 import org.springframework.batch.item.Chunk
@@ -14,7 +14,7 @@ import java.time.LocalDate
 
 @Component
 @Scope("singleton")
-class WriterLibelle(private val repositoryLibelle: RepositoryLibelle) : ItemWriter<DtoLibelle> {
+class WriterAbcLibelle(private val repositoryAbcLibelle: RepositoryAbcLibelle) : ItemWriter<DtoAbcLibelle> {
     companion object {
         var stepExecution: StepExecution? = null
         val date: LocalDate by lazy {
@@ -31,19 +31,19 @@ class WriterLibelle(private val repositoryLibelle: RepositoryLibelle) : ItemWrit
     // 1 - le find charge les libellés dans la session
     // 2 - si pas d'id lors du save -> insert
     //     si id lors du save -> utilisation de la session pour savoir un update est nécessaire sans SELECT supplémentaire
-    override fun write(dtoLibelles: Chunk<out DtoLibelle>) {
-        val tickers: List<String> = dtoLibelles.map { it.ticker }
-        val libelleByTicker: Map<String, Libelle> = repositoryLibelle.findByDateAndTickerIn(date, tickers)
+    override fun write(dtoAbcLibelles: Chunk<out DtoAbcLibelle>) {
+        val tickers: List<String> = dtoAbcLibelles.map { it.ticker }
+        val abcLibelleByTicker: Map<String, AbcLibelle> = repositoryAbcLibelle.findByDateAndTickerIn(date, tickers)
             .associateBy({ it.ticker }, { it })
-        for (dtoLibelle in dtoLibelles) {
-            val entity: Libelle = libelleByTicker[dtoLibelle.ticker]?.let {
-                it.isin = dtoLibelle.isin
-                it.nom = dtoLibelle.nom
+        for (dtoAbcLibelle in dtoAbcLibelles) {
+            val entity: AbcLibelle = abcLibelleByTicker[dtoAbcLibelle.ticker]?.let {
+                it.isin = dtoAbcLibelle.isin
+                it.nom = dtoAbcLibelle.nom
                 it
             } ?: run {
-                Libelle(date, dtoLibelle.ticker, dtoLibelle.isin, dtoLibelle.nom)
+                AbcLibelle(date, dtoAbcLibelle.ticker, dtoAbcLibelle.isin, dtoAbcLibelle.marche, dtoAbcLibelle.nom)
             }
-            repositoryLibelle.save(entity)
+            repositoryAbcLibelle.save(entity)
         }
     }
 }

@@ -1,7 +1,7 @@
 package fr.fabien.aspirateur.cotations.configuration
 
-import fr.fabien.aspirateur.cotations.dto.DtoCotation
-import fr.fabien.aspirateur.cotations.dto.DtoLibelle
+import fr.fabien.aspirateur.cotations.dto.DtoAbcCotation
+import fr.fabien.aspirateur.cotations.dto.DtoAbcLibelle
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.JobBuilder
@@ -19,76 +19,76 @@ import org.springframework.orm.jpa.JpaTransactionManager
 class ConfigurationAspirateur {
 
     @Bean
-    fun stepRecupererLibelles(
+    fun stepRecupererAbcLibelles(
         jobRepository: JobRepository,
         transactionManager: JpaTransactionManager,
-        taskletRecupererLibelles: Tasklet
+        taskletRecupererAbcLibelles: Tasklet
     ): Step {
-        return StepBuilder("stepRecupererLibelles", jobRepository)
-            .tasklet(taskletRecupererLibelles, transactionManager)
+        return StepBuilder("stepRecupererAbcLibelles", jobRepository)
+            .tasklet(taskletRecupererAbcLibelles, transactionManager)
             .build()
     }
 
     @Bean
-    fun stepPersisterLibelles(
+    fun stepPersisterAbcLibelles(
         jobRepository: JobRepository,
         transactionManager: JpaTransactionManager,
-        readerLibelle: ItemReader<DtoLibelle>,
-        writerLibelle: ItemWriter<DtoLibelle>
+        readerAbcLibelle: ItemReader<DtoAbcLibelle>,
+        writerAbcLibelle: ItemWriter<DtoAbcLibelle>
     ): Step {
-        return StepBuilder("stepPersisterLibelles", jobRepository)
-            .chunk<DtoLibelle, DtoLibelle>(10, transactionManager)
-            .reader(readerLibelle)
-            .writer(writerLibelle)
+        return StepBuilder("stepPersisterAbcLibelles", jobRepository)
+            .chunk<DtoAbcLibelle, DtoAbcLibelle>(10, transactionManager)
+            .reader(readerAbcLibelle)
+            .writer(writerAbcLibelle)
             .build()
     }
 
     @Bean
-    fun jobMajLibelles(
+    fun jobMajAbcLibelles(
         jobRepository: JobRepository,
-        stepRecupererLibelles: Step,
-        stepPersisterLibelles: Step
+        stepRecupererAbcLibelles: Step,
+        stepPersisterAbcLibelles: Step
     ): Job {
-        return JobBuilder("jobMajLibelles", jobRepository)
-            .start(stepRecupererLibelles)
-            .next(stepPersisterLibelles)
+        return JobBuilder("jobMajAbcLibelles", jobRepository)
+            .start(stepRecupererAbcLibelles)
+            .next(stepPersisterAbcLibelles)
             .build()
     }
 
     @Bean
-    fun stepRecupererCotations(
+    fun stepRecupererAbcCotations(
         jobRepository: JobRepository,
         transactionManager: JpaTransactionManager,
-        taskletRecupererCotations: Tasklet
+        taskletRecupererAbcCotations: Tasklet
     ): Step {
-        return StepBuilder("stepRecupererCotations", jobRepository)
-            .tasklet(taskletRecupererCotations, transactionManager)
+        return StepBuilder("stepRecupererAbcCotations", jobRepository)
+            .tasklet(taskletRecupererAbcCotations, transactionManager)
             .build()
     }
 
     @Bean
-    fun stepPersisterCotations(
+    fun stepPersisterAbcCotations(
         jobRepository: JobRepository,
         transactionManager: JpaTransactionManager,
-        readerCotation: ItemReader<DtoCotation>,
-        writerCotation: ItemWriter<DtoCotation>
+        readerAbcCotation: ItemReader<DtoAbcCotation>,
+        writerAbcCotation: ItemWriter<DtoAbcCotation>
     ): Step {
-        return StepBuilder("stepPersisterCotations", jobRepository)
-            .chunk<DtoCotation, DtoCotation>(10, transactionManager)
-            .reader(readerCotation)
-            .writer(writerCotation)
+        return StepBuilder("stepPersisterAbcCotations", jobRepository)
+            .chunk<DtoAbcCotation, DtoAbcCotation>(10, transactionManager)
+            .reader(readerAbcCotation)
+            .writer(writerAbcCotation)
             .build()
     }
 
     @Bean
-    fun jobMajCotations(
+    fun jobMajAbcCotations(
         jobRepository: JobRepository,
-        stepRecupererCotations: Step,
-        stepPersisterCotations: Step
+        stepRecupererAbcCotations: Step,
+        stepPersisterAbcCotations: Step
     ): Job {
-        return JobBuilder("jobMajCotations", jobRepository)
-            .start(stepRecupererCotations)
-            .next(stepPersisterCotations)
+        return JobBuilder("jobMajAbcCotations", jobRepository)
+            .start(stepRecupererAbcCotations)
+            .next(stepPersisterAbcCotations)
             .build()
     }
 }

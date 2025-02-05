@@ -1,6 +1,5 @@
 package fr.fabien.aspirateur.cotations.job.step.tasklet
 
-import fr.fabien.aspirateur.cotations.ApplicationAspirateur
 import fr.fabien.aspirateur.cotations.service.ServiceAbcBourse
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -22,14 +21,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Component
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.nio.charset.Charset
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.zip.GZIPInputStream
+
 
 @Component
 @Scope("singleton")
-class TaskletRecupererCotations : Tasklet {
+class TaskletRecupererAbcLibelles : Tasklet {
     @Autowired
     val serviceAbcBourse: ServiceAbcBourse? = null
 
@@ -40,7 +40,7 @@ class TaskletRecupererCotations : Tasklet {
 
         private val logger = KotlinLogging.logger {}
         private val domain: String = "https://www.abcbourse.com"
-        private val pathLibelles: String = "/download/historiques"
+        private val pathLibelles: String = "/download/libelles"
         private var token: String? = null
         private var charset: Charset? = null
         private var csv: ByteArray? = null
@@ -48,62 +48,53 @@ class TaskletRecupererCotations : Tasklet {
 
     override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus {
         return runBlocking {
-            val date: LocalDate = contribution.stepExecution.jobParameters.getLocalDate(ApplicationAspirateur.DATE)!!
-            requeteAbcBourse(contribution.stepExecution.jobExecution.executionContext, date)
+            requeteAbcBourse(contribution.stepExecution.jobExecution.executionContext)
         }
     }
 
-    private suspend fun requeteAbcBourse(executionContext: ExecutionContext, date: LocalDate): RepeatStatus {
+    private suspend fun requeteAbcBourse(executionContext: ExecutionContext): RepeatStatus {
         val client = HttpClient(CIO) {
             install(HttpCookies)
         }
         token = serviceAbcBourse!!.getToken(client, domain + pathLibelles)
         logger.info { "RequestVerificationToken = $token" }
-        getCotations(client, date)
-        logger.info { "Cotations ($charset)${System.lineSeparator()} ${ByteArrayResource(csv!!).getContentAsString(charset!!)}" }
+        getLibelles(client)
+        logger.info { "Libellés ($charset)${System.lineSeparator()} ${ByteArrayResource(csv!!).getContentAsString(charset!!)}" }
         client.close()
         executionContext.putString(CHARSET, charset!!.name())
         executionContext.put(CSV, csv)
         return RepeatStatus.FINISHED
     }
 
-    private suspend fun getCotations(client: HttpClient, date: LocalDate) {
-        val response: HttpResponse = submitFormLibelles(client, date)
-        if (response.status.value == 200) {
+    private suspend fun getLibelles(client: HttpClient) {
+        val response: HttpResponse = submitFormLibelles(client)
+        if (response.status.value == 200 && response.headers.get("content-encoding") == "gzip") {
             charset = serviceAbcBourse!!.findCharset(response)
-            serviceAbcBourse!!.findError(response, charset!!)?.let{
-                throw UnexpectedJobExecutionException(it)
-            }
-            val filename = serviceAbcBourse!!.findFilename(response)
-            if (!filename.contains(date.format(DateTimeFormatter.BASIC_ISO_DATE))) {
-                throw UnexpectedJobExecutionException("Le nom du fichier $filename ne correspond pas à la date demandée $date")
-            }
             val bytes: ByteArray = response.body()
-            csv = GZIPInputStream(bytes.inputStream())
-                .readAllBytes()
+//            csv = GZIPInputStream(bytes.inputStream())
+//                .readAllBytes()
+            val bufferedReader = BufferedReader(InputStreamReader(GZIPInputStream(bytes.inputStream()), charset!!))
+            val lines: List<String> = bufferedReader.readLines()
+            val sb: StringBuilder = StringBuilder()
+            for (i in 1..lines.size - 1) {
+                sb.append(lines[i] + ";todo" + System.lineSeparator());
+            }
+            csv = sb.toString().toByteArray(charset!!)
         } else {
             throw UnexpectedJobExecutionException(response.toString())
         }
     }
 
-    private suspend fun submitFormLibelles(client: HttpClient, date: LocalDate): HttpResponse {
+    private suspend fun submitFormLibelles(client: HttpClient): HttpResponse {
         // https://ktor.io/docs/client-requests.html#form_parameters
         // https://ktor.io/docs/client-responses.html#streaming
-        val strDate: String = date.format(DateTimeFormatter.ISO_DATE)
         val response: HttpResponse = client.submitForm(
             url = domain + pathLibelles,
             formParameters = parameters {
-                append("dateFrom", strDate)
-                append("__Invariant", "dateFrom")
-                append("dateTo", strDate)
-                append("__Invariant", "dateTo")
                 append("cbox", "eurolistap")
                 append("cbox", "eurolistbp")
                 append("cbox", "eurolistcp")
-                append("txtOneSico", "")
-                append("sFormat", "ab")
-                append("typeData", "ticker")
-                append("cbYes", "false")
+                append("cbPlace", "true")
                 append("__RequestVerificationToken", token!!)
             }
         ) {

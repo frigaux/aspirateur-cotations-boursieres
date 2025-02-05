@@ -1,9 +1,14 @@
 package fr.fabien.aspirateur.cotations.entity
 
 import jakarta.persistence.*
+import java.time.LocalDate
 
 @Entity
-class Cotation(
+class Cours(
+    @Temporal(TemporalType.DATE)
+    @Column(nullable = false, updatable = false)
+    val date: LocalDate,
+
     @Column(nullable = false)
     var ouverture: Float,
 

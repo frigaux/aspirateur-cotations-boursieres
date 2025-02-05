@@ -1,7 +1,7 @@
 package fr.fabien.aspirateur.cotations.job.step.reader
 
-import fr.fabien.aspirateur.cotations.dto.DtoCotation
-import fr.fabien.aspirateur.cotations.job.step.tasklet.TaskletRecupererCotations
+import fr.fabien.aspirateur.cotations.dto.DtoAbcCotation
+import fr.fabien.aspirateur.cotations.job.step.tasklet.TaskletRecupererAbcCotations
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.annotation.BeforeStep
 import org.springframework.batch.item.ExecutionContext
@@ -19,14 +19,14 @@ import java.time.format.DateTimeFormatter
 
 @Component
 @Scope("singleton")
-class ReaderCotation : ItemReader<DtoCotation> {
+class ReaderAbcCotation : ItemReader<DtoAbcCotation> {
     companion object {
         var executionContext: ExecutionContext? = null
-        val reader: FlatFileItemReader<DtoCotation> by lazy {
-            FlatFileItemReaderBuilder<DtoCotation>()
+        val reader: FlatFileItemReader<DtoAbcCotation> by lazy {
+            FlatFileItemReaderBuilder<DtoAbcCotation>()
                 .name("readerCotation")
-                .resource(ByteArrayResource(executionContext!!.get(TaskletRecupererCotations.CSV) as ByteArray))
-                .encoding(executionContext!!.getString(TaskletRecupererCotations.CHARSET))
+                .resource(ByteArrayResource(executionContext!!.get(TaskletRecupererAbcCotations.CSV) as ByteArray))
+                .encoding(executionContext!!.getString(TaskletRecupererAbcCotations.CHARSET))
                 .delimited()
                 .delimiter(";")
                 .names("ticker", "date", "ouverture", "plusHaut", "plusBas", "cloture", "volume")
@@ -35,7 +35,7 @@ class ReaderCotation : ItemReader<DtoCotation> {
                 .also { it.open(ExecutionContext()) }
         }
 
-        private fun fieldSetMapperDtoCotation(): RecordFieldSetMapper<DtoCotation> {
+        private fun fieldSetMapperDtoCotation(): RecordFieldSetMapper<DtoAbcCotation> {
             val conversionServiceDtoCotation: DefaultConversionService = DefaultConversionService()
                 .also {
                     val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yy")
@@ -46,7 +46,8 @@ class ReaderCotation : ItemReader<DtoCotation> {
                     })
                 }
 
-            return RecordFieldSetMapper<DtoCotation>(DtoCotation::class.java, conversionServiceDtoCotation)
+            return RecordFieldSetMapper<DtoAbcCotation>(
+                DtoAbcCotation::class.java, conversionServiceDtoCotation)
         }
     }
 
@@ -55,7 +56,7 @@ class ReaderCotation : ItemReader<DtoCotation> {
         executionContext = stepExecution.jobExecution.executionContext
     }
 
-    override fun read(): DtoCotation? {
+    override fun read(): DtoAbcCotation? {
         return reader.read()
     }
 }

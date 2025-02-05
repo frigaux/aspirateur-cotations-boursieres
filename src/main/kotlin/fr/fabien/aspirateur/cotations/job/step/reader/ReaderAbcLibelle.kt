@@ -1,7 +1,7 @@
 package fr.fabien.aspirateur.cotations.job.step.reader
 
-import fr.fabien.aspirateur.cotations.job.step.tasklet.TaskletRecupererLibelles
-import fr.fabien.aspirateur.cotations.dto.DtoLibelle
+import fr.fabien.aspirateur.cotations.job.step.tasklet.TaskletRecupererAbcLibelles
+import fr.fabien.aspirateur.cotations.dto.DtoAbcLibelle
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.annotation.BeforeStep
 import org.springframework.batch.item.ExecutionContext
@@ -14,19 +14,18 @@ import org.springframework.stereotype.Component
 
 @Component
 @Scope("singleton")
-class ReaderLibelle : ItemReader<DtoLibelle> {
+class ReaderAbcLibelle : ItemReader<DtoAbcLibelle> {
     companion object {
         var executionContext: ExecutionContext? = null
-        val reader: FlatFileItemReader<DtoLibelle> by lazy {
-            FlatFileItemReaderBuilder<DtoLibelle>()
+        val reader: FlatFileItemReader<DtoAbcLibelle> by lazy {
+            FlatFileItemReaderBuilder<DtoAbcLibelle>()
                 .name("readerLibelle")
-                .resource(ByteArrayResource(executionContext!!.get(TaskletRecupererLibelles.CSV) as ByteArray))
-                .encoding(executionContext!!.getString(TaskletRecupererLibelles.CHARSET))
+                .resource(ByteArrayResource(executionContext!!.get(TaskletRecupererAbcLibelles.CSV) as ByteArray))
+                .encoding(executionContext!!.getString(TaskletRecupererAbcLibelles.CHARSET))
                 .delimited()
                 .delimiter(";")
-                .names("isin", "nom", "ticker")
-                .targetType(DtoLibelle::class.java)
-                .linesToSkip(1)
+                .names("isin", "nom", "ticker", "marche")
+                .targetType(DtoAbcLibelle::class.java)
                 .build()
                 .also { it.open(ExecutionContext()) }
         }
@@ -37,7 +36,7 @@ class ReaderLibelle : ItemReader<DtoLibelle> {
         executionContext = stepExecution.jobExecution.executionContext
     }
 
-    override fun read(): DtoLibelle? {
+    override fun read(): DtoAbcLibelle? {
         return reader.read()
     }
 }
