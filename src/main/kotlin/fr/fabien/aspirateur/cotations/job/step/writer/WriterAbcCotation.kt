@@ -36,21 +36,20 @@ class WriterAbcCotation(private val repositoryAbcLibelle: RepositoryAbcLibelle) 
     override fun write(dtoAbcCotations: Chunk<out DtoAbcCotation>) {
         val tickers: List<String> = dtoAbcCotations.map { it.ticker }
         val abcLibelleByTicker: Map<String, AbcLibelle> = repositoryAbcLibelle.queryByDateAndTickerIn(date, tickers)
-            .associateBy({ it.ticker }, { it })
+            .associateBy { it.ticker }
         for (dtoAbcCotation in dtoAbcCotations) {
             if (dtoAbcCotation.date != date) { // vérification date du DTO = date de la requête = date passée en paramètre du job
                 throw UnexpectedJobExecutionException("La date de la cotation ${dtoAbcCotation.date} ne correspond pas à la date passée en paramètre $date")
             } else {
-                abcLibelleByTicker[dtoAbcCotation.ticker]?.let {
-                    it.abcCotation?.let {
-                        it.ouverture = dtoAbcCotation.ouverture
-                        it.plusHaut = dtoAbcCotation.plusHaut
-                        it.plusBas = dtoAbcCotation.plusBas
-                        it.cloture = dtoAbcCotation.cloture
-                        it.volume = dtoAbcCotation.volume
-                        it
+                abcLibelleByTicker[dtoAbcCotation.ticker]?.also { libelle ->
+                    libelle.abcCotation?.apply {
+                        ouverture = dtoAbcCotation.ouverture
+                        plusHaut = dtoAbcCotation.plusHaut
+                        plusBas = dtoAbcCotation.plusBas
+                        cloture = dtoAbcCotation.cloture
+                        volume = dtoAbcCotation.volume
                     } ?: run {
-                        it.abcCotation = AbcCotation(
+                        libelle.abcCotation = AbcCotation(
                             dtoAbcCotation.ouverture,
                             dtoAbcCotation.plusHaut,
                             dtoAbcCotation.plusBas,
@@ -58,7 +57,7 @@ class WriterAbcCotation(private val repositoryAbcLibelle: RepositoryAbcLibelle) 
                             dtoAbcCotation.volume
                         )
                     }
-                    repositoryAbcLibelle.save(it)
+                    repositoryAbcLibelle.save(libelle)
                 } ?: run {
                     throw UnexpectedJobExecutionException("Impossible de persister la cotation car le libellé est manquant pour le ticker ${dtoAbcCotation.ticker} à la date $date")
                 }

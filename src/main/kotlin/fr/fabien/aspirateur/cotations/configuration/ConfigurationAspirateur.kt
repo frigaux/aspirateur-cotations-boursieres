@@ -91,4 +91,25 @@ class ConfigurationAspirateur {
             .next(stepPersisterAbcCotations)
             .build()
     }
+
+    @Bean
+    fun stepMajValeurCours(
+        jobRepository: JobRepository,
+        transactionManager: JpaTransactionManager,
+        taskletMajValeurCours: Tasklet
+    ): Step {
+        return StepBuilder("stepMajValeurCours", jobRepository)
+            .tasklet(taskletMajValeurCours, transactionManager)
+            .build()
+    }
+
+    @Bean
+    fun jobMajValeurCours(
+        jobRepository: JobRepository,
+        stepMajValeurCours: Step
+    ): Job {
+        return JobBuilder("jobMajValeurCours", jobRepository)
+            .start(stepMajValeurCours)
+            .build()
+    }
 }

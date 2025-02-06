@@ -34,16 +34,15 @@ class WriterAbcLibelle(private val repositoryAbcLibelle: RepositoryAbcLibelle) :
     override fun write(dtoAbcLibelles: Chunk<out DtoAbcLibelle>) {
         val tickers: List<String> = dtoAbcLibelles.map { it.ticker }
         val abcLibelleByTicker: Map<String, AbcLibelle> = repositoryAbcLibelle.findByDateAndTickerIn(date, tickers)
-            .associateBy({ it.ticker }, { it })
+            .associateBy { it.ticker }
         for (dtoAbcLibelle in dtoAbcLibelles) {
-            val entity: AbcLibelle = abcLibelleByTicker[dtoAbcLibelle.ticker]?.let {
-                it.isin = dtoAbcLibelle.isin
-                it.nom = dtoAbcLibelle.nom
-                it
+            val libelle: AbcLibelle = abcLibelleByTicker[dtoAbcLibelle.ticker]?.apply {
+                isin = dtoAbcLibelle.isin
+                nom = dtoAbcLibelle.nom
             } ?: run {
                 AbcLibelle(date, dtoAbcLibelle.ticker, dtoAbcLibelle.isin, dtoAbcLibelle.marche, dtoAbcLibelle.nom)
             }
-            repositoryAbcLibelle.save(entity)
+            repositoryAbcLibelle.save(libelle)
         }
     }
 }

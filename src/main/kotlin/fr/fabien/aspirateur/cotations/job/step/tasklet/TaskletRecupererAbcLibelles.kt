@@ -1,6 +1,6 @@
 package fr.fabien.aspirateur.cotations.job.step.tasklet
 
-import fr.fabien.aspirateur.cotations.entity.Marche
+import fr.fabien.aspirateur.cotations.dto.Marche
 import fr.fabien.aspirateur.cotations.service.ServiceAbcBourse
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -17,7 +17,6 @@ import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.repeat.RepeatStatus
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Component
@@ -29,9 +28,7 @@ import java.util.zip.GZIPInputStream
 
 @Component
 @Scope("singleton")
-class TaskletRecupererAbcLibelles : Tasklet {
-    @Autowired
-    val serviceAbcBourse: ServiceAbcBourse? = null
+class TaskletRecupererAbcLibelles(val serviceAbcBourse: ServiceAbcBourse) : Tasklet {
 
     companion object {
         // job execution context keys
@@ -56,7 +53,7 @@ class TaskletRecupererAbcLibelles : Tasklet {
         val client = HttpClient(CIO) {
             install(HttpCookies)
         }
-        token = serviceAbcBourse!!.getToken(client, domain + pathLibelles)
+        token = serviceAbcBourse.getToken(client, domain + pathLibelles)
         logger.info { "RequestVerificationToken = $token" }
         getLibelles(client)
         logger.info {
@@ -85,14 +82,14 @@ class TaskletRecupererAbcLibelles : Tasklet {
 
     private fun addlines(lines: List<String>, sb: StringBuilder, marche: Marche) {
         for (i in 1..lines.size - 1) {
-            sb.append("${lines[i]};$marche${System.lineSeparator()}");
+            sb.append("${lines[i]};$marche${System.lineSeparator()}")
         }
     }
 
     private suspend fun getLibelles(client: HttpClient, cbox: String): List<String> {
         val response: HttpResponse = submitFormLibelles(client, cbox)
         if (response.status.value == 200 && response.headers.get("content-encoding") == "gzip") {
-            charset = serviceAbcBourse!!.findCharset(response)
+            charset = serviceAbcBourse.findCharset(response)
             return response.bodyAsBytes().inputStream()
                 .let { inputStream -> InputStreamReader(GZIPInputStream(inputStream), charset!!) }
                 .let { inputStreamReader -> BufferedReader(inputStreamReader) }

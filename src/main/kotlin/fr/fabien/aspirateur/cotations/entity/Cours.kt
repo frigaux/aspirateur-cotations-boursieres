@@ -4,7 +4,19 @@ import jakarta.persistence.*
 import java.time.LocalDate
 
 @Entity
+@Table(
+    indexes = [
+        Index(columnList = "date")
+    ],
+    uniqueConstraints = [
+        UniqueConstraint(name = "UniqueValeurEtDate", columnNames = ["idValeur", "date"])
+    ]
+)
 class Cours(
+    @ManyToOne(optional = false, cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @JoinColumn(name = "idValeur", nullable = false, updatable = false)
+    val valeur: Valeur,
+
     @Temporal(TemporalType.DATE)
     @Column(nullable = false, updatable = false)
     val date: LocalDate,

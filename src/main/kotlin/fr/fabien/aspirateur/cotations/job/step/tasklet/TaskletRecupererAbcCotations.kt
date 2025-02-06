@@ -18,7 +18,6 @@ import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
 import org.springframework.batch.item.ExecutionContext
 import org.springframework.batch.repeat.RepeatStatus
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Component
@@ -29,9 +28,7 @@ import java.util.zip.GZIPInputStream
 
 @Component
 @Scope("singleton")
-class TaskletRecupererAbcCotations : Tasklet {
-    @Autowired
-    val serviceAbcBourse: ServiceAbcBourse? = null
+class TaskletRecupererAbcCotations(val serviceAbcBourse: ServiceAbcBourse) : Tasklet {
 
     companion object {
         // job execution context keys
@@ -57,7 +54,7 @@ class TaskletRecupererAbcCotations : Tasklet {
         val client = HttpClient(CIO) {
             install(HttpCookies)
         }
-        token = serviceAbcBourse!!.getToken(client, domain + pathLibelles)
+        token = serviceAbcBourse.getToken(client, domain + pathLibelles)
         logger.info { "RequestVerificationToken = $token" }
         getCotations(client, date)
         logger.info { "Cotations ($charset)${System.lineSeparator()} ${ByteArrayResource(csv!!).getContentAsString(charset!!)}" }
@@ -70,11 +67,11 @@ class TaskletRecupererAbcCotations : Tasklet {
     private suspend fun getCotations(client: HttpClient, date: LocalDate) {
         val response: HttpResponse = submitFormLibelles(client, date)
         if (response.status.value == 200) {
-            charset = serviceAbcBourse!!.findCharset(response)
-            serviceAbcBourse!!.findError(response, charset!!)?.let{
+            charset = serviceAbcBourse.findCharset(response)
+            serviceAbcBourse.findError(response, charset!!)?.let{
                 throw UnexpectedJobExecutionException(it)
             }
-            val filename = serviceAbcBourse!!.findFilename(response)
+            val filename = serviceAbcBourse.findFilename(response)
             if (!filename.contains(date.format(DateTimeFormatter.BASIC_ISO_DATE))) {
                 throw UnexpectedJobExecutionException("Le nom du fichier $filename ne correspond pas à la date demandée $date")
             }

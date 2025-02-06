@@ -1,14 +1,17 @@
 package fr.fabien.aspirateur.cotations.entity
 
+import fr.fabien.aspirateur.cotations.dto.Marche
 import jakarta.persistence.*
 import java.time.LocalDate
 
 @Entity
 @Table(
-    indexes = arrayOf(Index(columnList = "date")),
-    uniqueConstraints = arrayOf(
-        UniqueConstraint(name = "UniqueDateAndTicker", columnNames = arrayOf("date", "ticker"))
-    )
+    indexes = [
+        Index(columnList = "date"),
+    ],
+    uniqueConstraints = [
+        UniqueConstraint(name = "UniqueDateEtTicker", columnNames = ["date", "ticker"])
+    ]
 )
 class AbcLibelle(
     @Temporal(TemporalType.DATE)
@@ -22,14 +25,14 @@ class AbcLibelle(
     var isin: String,
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     val marche: Marche,
 
     @Column(nullable = false, length = 100)
     var nom: String,
 
     @OneToOne(optional = true, cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    @JoinColumn(name="id_cotation")
+    @JoinColumn(name = "id_cotation")
     var abcCotation: AbcCotation? = null,
 
     @Id

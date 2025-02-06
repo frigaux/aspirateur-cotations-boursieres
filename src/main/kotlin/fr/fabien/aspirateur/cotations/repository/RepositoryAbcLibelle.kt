@@ -11,4 +11,7 @@ interface RepositoryAbcLibelle : CrudRepository<AbcLibelle, Int> {
 
     @Query("SELECT l FROM AbcLibelle l LEFT JOIN FETCH l.abcCotation WHERE l.date = :date AND l.ticker IN (:tickers)")
     fun queryByDateAndTickerIn(@Param("date") date: LocalDate, @Param("tickers") tickers: List<String>): List<AbcLibelle>
+
+    @Query("SELECT l FROM AbcLibelle l LEFT JOIN FETCH l.abcCotation WHERE l.date = :date")
+    fun queryByDate(@Param("date") date: LocalDate): List<AbcLibelle>
 }

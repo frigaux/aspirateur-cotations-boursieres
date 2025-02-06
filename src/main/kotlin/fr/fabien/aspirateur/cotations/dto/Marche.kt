@@ -1,4 +1,4 @@
-package fr.fabien.aspirateur.cotations.entity
+package fr.fabien.aspirateur.cotations.dto
 
 enum class Marche(val libelle: String) {
     EURO_LIST_A("Eurolist A"),
