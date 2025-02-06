@@ -1,8 +1,8 @@
 package fr.fabien.aspirateur.cotations.job.step.tasklet
 
+import fr.fabien.aspirateur.cotations.entity.Marche
 import fr.fabien.aspirateur.cotations.service.ServiceAbcBourse
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
@@ -59,7 +59,13 @@ class TaskletRecupererAbcLibelles : Tasklet {
         token = serviceAbcBourse!!.getToken(client, domain + pathLibelles)
         logger.info { "RequestVerificationToken = $token" }
         getLibelles(client)
-        logger.info { "Libellés ($charset)${System.lineSeparator()} ${ByteArrayResource(csv!!).getContentAsString(charset!!)}" }
+        logger.info {
+            "Libellés ($charset)${System.lineSeparator()} ${
+                ByteArrayResource(csv!!).getContentAsString(
+                    charset!!
+                )
+            }"
+        }
         client.close()
         executionContext.putString(CHARSET, charset!!.name())
         executionContext.put(CSV, csv)
@@ -67,33 +73,42 @@ class TaskletRecupererAbcLibelles : Tasklet {
     }
 
     private suspend fun getLibelles(client: HttpClient) {
-        val response: HttpResponse = submitFormLibelles(client)
+        val sb: StringBuilder = StringBuilder()
+        getLibelles(client, "eurolistap")
+            .let { lines -> addlines(lines, sb, Marche.EURO_LIST_A) }
+        getLibelles(client, "eurolistbp")
+            .let { lines -> addlines(lines, sb, Marche.EURO_LIST_B) }
+        getLibelles(client, "eurolistcp")
+            .let { lines -> addlines(lines, sb, Marche.EURO_LIST_C) }
+        csv = sb.toString().toByteArray(charset!!)
+    }
+
+    private fun addlines(lines: List<String>, sb: StringBuilder, marche: Marche) {
+        for (i in 1..lines.size - 1) {
+            sb.append("${lines[i]};$marche${System.lineSeparator()}");
+        }
+    }
+
+    private suspend fun getLibelles(client: HttpClient, cbox: String): List<String> {
+        val response: HttpResponse = submitFormLibelles(client, cbox)
         if (response.status.value == 200 && response.headers.get("content-encoding") == "gzip") {
             charset = serviceAbcBourse!!.findCharset(response)
-            val bytes: ByteArray = response.body()
-//            csv = GZIPInputStream(bytes.inputStream())
-//                .readAllBytes()
-            val bufferedReader = BufferedReader(InputStreamReader(GZIPInputStream(bytes.inputStream()), charset!!))
-            val lines: List<String> = bufferedReader.readLines()
-            val sb: StringBuilder = StringBuilder()
-            for (i in 1..lines.size - 1) {
-                sb.append(lines[i] + ";todo" + System.lineSeparator());
-            }
-            csv = sb.toString().toByteArray(charset!!)
+            return response.bodyAsBytes().inputStream()
+                .let { inputStream -> InputStreamReader(GZIPInputStream(inputStream), charset!!) }
+                .let { inputStreamReader -> BufferedReader(inputStreamReader) }
+                .readLines()
         } else {
             throw UnexpectedJobExecutionException(response.toString())
         }
     }
 
-    private suspend fun submitFormLibelles(client: HttpClient): HttpResponse {
+    private suspend fun submitFormLibelles(client: HttpClient, cbox: String): HttpResponse {
         // https://ktor.io/docs/client-requests.html#form_parameters
         // https://ktor.io/docs/client-responses.html#streaming
         val response: HttpResponse = client.submitForm(
             url = domain + pathLibelles,
             formParameters = parameters {
-                append("cbox", "eurolistap")
-                append("cbox", "eurolistbp")
-                append("cbox", "eurolistcp")
+                append("cbox", cbox)
                 append("cbPlace", "true")
                 append("__RequestVerificationToken", token!!)
             }

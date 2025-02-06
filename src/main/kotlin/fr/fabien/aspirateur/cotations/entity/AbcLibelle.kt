@@ -21,8 +21,9 @@ class AbcLibelle(
     @Column(nullable = false, length = 13)
     var isin: String,
 
-    @Column(nullable = false, updatable = false, length = 30)
-    val marche: String,
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    val marche: Marche,
 
     @Column(nullable = false, length = 100)
     var nom: String,
