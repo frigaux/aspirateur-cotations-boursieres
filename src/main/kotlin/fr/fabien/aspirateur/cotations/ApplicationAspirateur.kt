@@ -13,7 +13,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.system.exitProcess
 
-// TODO : job aggrégation libelle / cotation
 // TODO : JOB moyenne mobile
 @SpringBootApplication
 class ApplicationAspirateur(val jobLauncher: JobLauncher, val context: ApplicationContext) : CommandLineRunner {

@@ -25,7 +25,7 @@ class Valeur(
     @Column(nullable = false, length = 100)
     var libelle: String,
 
-    @OneToMany(mappedBy="valeur", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="valeur", fetch = FetchType.LAZY)
     val cours: Set<Cours>,
 
     @Id

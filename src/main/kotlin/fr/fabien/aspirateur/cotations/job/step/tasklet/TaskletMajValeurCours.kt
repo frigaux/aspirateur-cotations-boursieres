@@ -2,8 +2,10 @@ package fr.fabien.aspirateur.cotations.job.step.tasklet
 
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur
 import fr.fabien.aspirateur.cotations.entity.AbcLibelle
+import fr.fabien.aspirateur.cotations.entity.Cours
 import fr.fabien.aspirateur.cotations.entity.Valeur
 import fr.fabien.aspirateur.cotations.repository.RepositoryAbcLibelle
+import fr.fabien.aspirateur.cotations.repository.RepositoryCours
 import fr.fabien.aspirateur.cotations.repository.RepositoryValeur
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
@@ -17,7 +19,8 @@ import java.time.LocalDate
 @Scope("singleton")
 class TaskletMajValeurCours(
     private val repositoryAbcLibelle: RepositoryAbcLibelle,
-    private val repositoryValeur: RepositoryValeur
+    private val repositoryValeur: RepositoryValeur,
+    private val repositoryCours: RepositoryCours
 ) : Tasklet {
 
     override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus? {
@@ -28,11 +31,35 @@ class TaskletMajValeurCours(
         for (abcLibelle in abcLibelles) {
             val valeur = valeurByTicker[abcLibelle.ticker]?.also { valeur ->
                 valeur.libelle = abcLibelle.nom
-            }?:run{
+            } ?: run {
                 Valeur(abcLibelle.ticker, abcLibelle.marche, abcLibelle.nom, setOf())
             }
             repositoryValeur.save(valeur)
+
+            abcLibelle.abcCotation?.let { cotation ->
+                if (valeur.cours.isEmpty()) {
+                    val cours: Cours = Cours(
+                        valeur,
+                        abcLibelle.date,
+                        cotation.ouverture,
+                        cotation.plusHaut,
+                        cotation.plusBas,
+                        cotation.cloture,
+                        cotation.volume
+                    )
+                    repositoryCours.save(cours)
+                } else {
+                    val cours: Cours = valeur.cours.elementAt(0)
+                    cours.ouverture = cotation.ouverture
+                    cours.plusHaut = cotation.plusHaut
+                    cours.plusBas = cotation.plusBas
+                    cours.cloture = cotation.cloture
+                    cours.volume = cotation.volume
+                    repositoryCours.save(cours)
+                }
+            }
         }
+
         return RepeatStatus.FINISHED
     }
 }

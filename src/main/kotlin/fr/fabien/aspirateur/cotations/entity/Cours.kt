@@ -13,7 +13,7 @@ import java.time.LocalDate
     ]
 )
 class Cours(
-    @ManyToOne(optional = false, cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "idValeur", nullable = false, updatable = false)
     val valeur: Valeur,
 

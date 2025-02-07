@@ -3,6 +3,8 @@ package fr.fabien.aspirateur.cotations
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur.Companion.DATE
 import fr.fabien.aspirateur.cotations.repository.RepositoryAbcCotation
 import fr.fabien.aspirateur.cotations.repository.RepositoryAbcLibelle
+import fr.fabien.aspirateur.cotations.repository.RepositoryCours
+import fr.fabien.aspirateur.cotations.repository.RepositoryValeur
 import org.junit.jupiter.api.*
 import org.springframework.batch.core.*
 import org.springframework.batch.test.JobLauncherTestUtils
@@ -27,8 +29,11 @@ class TestConfigurationAspirateur(
     @Autowired private val jobLauncherTestUtils: JobLauncherTestUtils,
     @Autowired private val jobMajAbcLibelles: Job,
     @Autowired private val jobMajAbcCotations: Job,
+    @Autowired private val jobMajValeurCours: Job,
     @Autowired private val repositoryAbcLibelle: RepositoryAbcLibelle,
-    @Autowired private val repositoryAbcCotation: RepositoryAbcCotation
+    @Autowired private val repositoryAbcCotation: RepositoryAbcCotation,
+    @Autowired private val repositoryValeur: RepositoryValeur,
+    @Autowired private val repositoryCours: RepositoryCours
 ) {
 
     companion object {
@@ -65,5 +70,16 @@ class TestConfigurationAspirateur(
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
         Assertions.assertTrue(repositoryAbcCotation.count() > 0)
+    }
+
+    @Test
+    @Order(3)
+    @Throws(Exception::class)
+    fun launchJobMajValeurCours_WhenJobEnds_ThenThereAreValeurCoursInRepository() {
+        jobLauncherTestUtils.setJob(jobMajValeurCours)
+        val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
+        Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
+        Assertions.assertTrue(repositoryValeur.count() > 0)
+        Assertions.assertTrue(repositoryCours.count() > 0)
     }
 }
