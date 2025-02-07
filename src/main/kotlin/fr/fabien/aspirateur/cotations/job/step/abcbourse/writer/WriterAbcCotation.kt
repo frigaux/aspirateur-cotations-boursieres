@@ -1,9 +1,9 @@
-package fr.fabien.aspirateur.cotations.job.step.writer
+package fr.fabien.aspirateur.cotations.job.step.abcbourse.writer
 
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur
-import fr.fabien.aspirateur.cotations.dto.DtoAbcCotation
-import fr.fabien.aspirateur.cotations.entity.AbcCotation
-import fr.fabien.aspirateur.cotations.entity.AbcLibelle
+import fr.fabien.aspirateur.cotations.dto.abcbourse.DtoAbcCotation
+import fr.fabien.aspirateur.cotations.entity.abcbourse.AbcCotation
+import fr.fabien.aspirateur.cotations.entity.abcbourse.AbcLibelle
 import fr.fabien.aspirateur.cotations.repository.RepositoryAbcLibelle
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.UnexpectedJobExecutionException
@@ -26,7 +26,7 @@ class WriterAbcCotation(private val repositoryAbcLibelle: RepositoryAbcLibelle) 
 
     @BeforeStep
     fun beforeStep(stepExecution: StepExecution) {
-        WriterAbcCotation.stepExecution = stepExecution
+        Companion.stepExecution = stepExecution
     }
 
     // cette méthode est appelée dans une transaction

@@ -1,6 +1,6 @@
 package fr.fabien.aspirateur.cotations.repository
 
-import fr.fabien.aspirateur.cotations.entity.AbcLibelle
+import fr.fabien.aspirateur.cotations.entity.abcbourse.AbcLibelle
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param

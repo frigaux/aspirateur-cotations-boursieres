@@ -1,4 +1,4 @@
-package fr.fabien.aspirateur.cotations.dto;
+package fr.fabien.aspirateur.cotations.dto.abcbourse;
 
 import java.time.LocalDate;
 

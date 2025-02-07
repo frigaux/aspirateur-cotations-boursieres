@@ -1,4 +1,4 @@
-package fr.fabien.aspirateur.cotations.entity
+package fr.fabien.aspirateur.cotations.entity.abcbourse
 
 import jakarta.persistence.*
 

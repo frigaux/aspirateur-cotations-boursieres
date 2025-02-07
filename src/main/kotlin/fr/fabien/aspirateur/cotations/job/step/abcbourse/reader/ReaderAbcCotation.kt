@@ -1,7 +1,7 @@
-package fr.fabien.aspirateur.cotations.job.step.reader
+package fr.fabien.aspirateur.cotations.job.step.abcbourse.reader
 
-import fr.fabien.aspirateur.cotations.dto.DtoAbcCotation
-import fr.fabien.aspirateur.cotations.job.step.tasklet.TaskletRecupererAbcCotations
+import fr.fabien.aspirateur.cotations.dto.abcbourse.DtoAbcCotation
+import fr.fabien.aspirateur.cotations.job.step.abcbourse.tasklet.TaskletRecupererAbcCotations
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.annotation.BeforeStep
 import org.springframework.batch.item.ExecutionContext

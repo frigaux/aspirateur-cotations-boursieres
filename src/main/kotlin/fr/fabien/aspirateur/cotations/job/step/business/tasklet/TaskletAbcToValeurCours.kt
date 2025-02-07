@@ -1,7 +1,7 @@
-package fr.fabien.aspirateur.cotations.job.step.tasklet
+package fr.fabien.aspirateur.cotations.job.step.business.tasklet
 
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur
-import fr.fabien.aspirateur.cotations.entity.AbcLibelle
+import fr.fabien.aspirateur.cotations.entity.abcbourse.AbcLibelle
 import fr.fabien.aspirateur.cotations.entity.Cours
 import fr.fabien.aspirateur.cotations.entity.Valeur
 import fr.fabien.aspirateur.cotations.repository.RepositoryAbcLibelle
@@ -17,7 +17,7 @@ import java.time.LocalDate
 
 @Component
 @Scope("singleton")
-class TaskletMajValeurCours(
+class TaskletAbcToValeurCours(
     private val repositoryAbcLibelle: RepositoryAbcLibelle,
     private val repositoryValeur: RepositoryValeur,
     private val repositoryCours: RepositoryCours
@@ -45,7 +45,9 @@ class TaskletMajValeurCours(
                         cotation.plusHaut,
                         cotation.plusBas,
                         cotation.cloture,
-                        cotation.volume
+                        cotation.volume,
+                        null,
+                        null
                     )
                     repositoryCours.save(cours)
                 } else {

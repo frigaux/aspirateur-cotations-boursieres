@@ -29,7 +29,7 @@ class TestConfigurationAspirateur(
     @Autowired private val jobLauncherTestUtils: JobLauncherTestUtils,
     @Autowired private val jobMajAbcLibelles: Job,
     @Autowired private val jobMajAbcCotations: Job,
-    @Autowired private val jobMajValeurCours: Job,
+    @Autowired private val jobAbcToValeurCours: Job,
     @Autowired private val repositoryAbcLibelle: RepositoryAbcLibelle,
     @Autowired private val repositoryAbcCotation: RepositoryAbcCotation,
     @Autowired private val repositoryValeur: RepositoryValeur,
@@ -75,8 +75,8 @@ class TestConfigurationAspirateur(
     @Test
     @Order(3)
     @Throws(Exception::class)
-    fun launchJobMajValeurCours_WhenJobEnds_ThenThereAreValeurCoursInRepository() {
-        jobLauncherTestUtils.setJob(jobMajValeurCours)
+    fun launchJobAbcToValeurCours_WhenJobEnds_ThenThereAreValeurCoursInRepository() {
+        jobLauncherTestUtils.setJob(jobAbcToValeurCours)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
         Assertions.assertTrue(repositoryValeur.count() > 0)

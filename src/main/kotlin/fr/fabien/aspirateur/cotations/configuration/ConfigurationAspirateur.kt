@@ -1,7 +1,7 @@
 package fr.fabien.aspirateur.cotations.configuration
 
-import fr.fabien.aspirateur.cotations.dto.DtoAbcCotation
-import fr.fabien.aspirateur.cotations.dto.DtoAbcLibelle
+import fr.fabien.aspirateur.cotations.dto.abcbourse.DtoAbcCotation
+import fr.fabien.aspirateur.cotations.dto.abcbourse.DtoAbcLibelle
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.JobBuilder
@@ -93,23 +93,23 @@ class ConfigurationAspirateur {
     }
 
     @Bean
-    fun stepMajValeurCours(
+    fun stepAbcToValeurCours(
         jobRepository: JobRepository,
         transactionManager: JpaTransactionManager,
-        taskletMajValeurCours: Tasklet
+        taskletAbcToValeurCours: Tasklet
     ): Step {
-        return StepBuilder("stepMajValeurCours", jobRepository)
-            .tasklet(taskletMajValeurCours, transactionManager)
+        return StepBuilder("stepAbcToValeurCours", jobRepository)
+            .tasklet(taskletAbcToValeurCours, transactionManager)
             .build()
     }
 
     @Bean
-    fun jobMajValeurCours(
+    fun jobAbcToValeurCours(
         jobRepository: JobRepository,
-        stepMajValeurCours: Step
+        stepAbcToValeurCours: Step
     ): Job {
-        return JobBuilder("jobMajValeurCours", jobRepository)
-            .start(stepMajValeurCours)
+        return JobBuilder("jobAbcToValeurCours", jobRepository)
+            .start(stepAbcToValeurCours)
             .build()
     }
 }

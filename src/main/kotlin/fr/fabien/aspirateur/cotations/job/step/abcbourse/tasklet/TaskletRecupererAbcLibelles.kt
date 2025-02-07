@@ -1,4 +1,4 @@
-package fr.fabien.aspirateur.cotations.job.step.tasklet
+package fr.fabien.aspirateur.cotations.job.step.abcbourse.tasklet
 
 import fr.fabien.aspirateur.cotations.dto.Marche
 import fr.fabien.aspirateur.cotations.service.ServiceAbcBourse

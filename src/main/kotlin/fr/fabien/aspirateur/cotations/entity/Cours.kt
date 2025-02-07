@@ -36,6 +36,13 @@ class Cours(
     @Column(nullable = false)
     var volume: Long,
 
+    @Lob
+    @Column(nullable = true, length = 65535)
+    var moyennesMobiles: String?,// TODO : marchall / unmarchal la liste des MM
+
+    @Column(nullable = true)
+    var alerte: Boolean?,
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int? = null
