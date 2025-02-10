@@ -7,6 +7,6 @@ import org.springframework.data.repository.query.Param
 import java.time.LocalDate
 
 interface RepositoryValeur : CrudRepository<Valeur, Int> {
-    @Query("SELECT l FROM Valeur l LEFT JOIN FETCH l.cours c WHERE c.date = :date")
-    fun queryByDate(@Param("date") date: LocalDate): List<Valeur>
+    @Query("SELECT l FROM Valeur l JOIN FETCH l.cours c WHERE c.date = :date")
+    fun queryJoinCoursByDate(@Param("date") date: LocalDate): List<Valeur>
 }

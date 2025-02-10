@@ -26,10 +26,14 @@ class TaskletAbcToValeurCours(
     override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus? {
         val date: LocalDate = contribution.stepExecution.jobParameters.getLocalDate(ApplicationAspirateur.DATE)!!
         val abcLibelles: List<AbcLibelle> = repositoryAbcLibelle.queryByDate(date)
-        val valeurByTicker: Map<String, Valeur> = repositoryValeur.queryByDate(date)
+        val valeurByTicker: Map<String, Valeur> = repositoryValeur
+            .findAll()
             .associateBy { it.ticker }
+        repositoryValeur.queryJoinCoursByDate(date)
+            .forEach { valeur -> valeurByTicker.plus(Pair(valeur.ticker, valeur)) }
         for (abcLibelle in abcLibelles) {
             val valeur = valeurByTicker[abcLibelle.ticker]?.also { valeur ->
+                valeur.marche = abcLibelle.marche
                 valeur.libelle = abcLibelle.nom
             } ?: run {
                 Valeur(abcLibelle.ticker, abcLibelle.marche, abcLibelle.nom, setOf())
@@ -46,7 +50,7 @@ class TaskletAbcToValeurCours(
                         cotation.plusBas,
                         cotation.cloture,
                         cotation.volume,
-                        null,
+                        listOf(),
                         null
                     )
                     repositoryCours.save(cours)

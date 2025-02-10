@@ -19,8 +19,8 @@ class Valeur(
     val ticker: String,
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, updatable = false)
-    val marche: Marche,
+    @Column(nullable = false)
+    var marche: Marche,
 
     @Column(nullable = false, length = 100)
     var libelle: String,

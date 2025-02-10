@@ -1,5 +1,6 @@
 package fr.fabien.aspirateur.cotations.entity
 
+import fr.fabien.aspirateur.cotations.configuration.ListFloatConverter
 import jakarta.persistence.*
 import java.time.LocalDate
 
@@ -38,7 +39,8 @@ class Cours(
 
     @Lob
     @Column(nullable = true, length = 65535)
-    var moyennesMobiles: String?,// TODO : marchall / unmarchal la liste des MM
+    @Convert(converter = ListFloatConverter::class)
+    var moyennesMobiles: List<Float>?,
 
     @Column(nullable = true)
     var alerte: Boolean?,
