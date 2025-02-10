@@ -112,4 +112,25 @@ class ConfigurationAspirateur {
             .start(stepAbcToValeurCours)
             .build()
     }
+
+    @Bean
+    fun stepCalculerMoyennes(
+        jobRepository: JobRepository,
+        transactionManager: JpaTransactionManager,
+        taskletCalculerMoyennes: Tasklet
+    ): Step {
+        return StepBuilder("stepCalculerMoyennes", jobRepository)
+            .tasklet(taskletCalculerMoyennes, transactionManager)
+            .build()
+    }
+
+    @Bean
+    fun jobCalculerMoyennes(
+        jobRepository: JobRepository,
+        stepCalculerMoyennes: Step
+    ): Job {
+        return JobBuilder("jobCalculerMoyennes", jobRepository)
+            .start(stepCalculerMoyennes)
+            .build()
+    }
 }
