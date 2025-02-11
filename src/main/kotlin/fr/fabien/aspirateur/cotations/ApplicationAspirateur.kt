@@ -13,7 +13,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.system.exitProcess
 
-// TODO : JOB moyenne mobile
 @SpringBootApplication
 class ApplicationAspirateur(val jobLauncher: JobLauncher, val context: ApplicationContext) : CommandLineRunner {
     companion object {
@@ -22,8 +21,8 @@ class ApplicationAspirateur(val jobLauncher: JobLauncher, val context: Applicati
     }
 
     override fun run(vararg args: String) {
-        val jobName: String? = System.getenv("JOB_NAME")
-        val strDate: String? = System.getenv("DATE")
+        val jobName: String? = System.getProperty("JOB_NAME")
+        val strDate: String? = System.getProperty("DATE")
         if (jobName != null && strDate != null) {
             val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
             val job: Job = context.getBean(jobName) as Job
@@ -39,12 +38,12 @@ class ApplicationAspirateur(val jobLauncher: JobLauncher, val context: Applicati
  * "mvn spring-boot:run" appelle la méthode "main".
  * "com.intellij.rt.junit.JUnitStarter" ou "mvn test" n'appellent pas La méthode "main".
  * https://www.baeldung.com/spring-profiles
- * On peut spécifier le profil avec la JVM System Parameter "-Dspring.profiles.active=dev".
+ * On peut spécifier le profil avec la propriété système "-Dspring.profiles.active=dev".
  * @param args command line arguments pour SpringApplicationBuilder
  */
 fun main(vararg args: String) {
-    if (System.getenv("JOB_NAME") == null || System.getenv("DATE") == null) {
-        KotlinLogging.logger {}.error { "Variables d'environnement manquantes : JOB_NAME et DATE (dd/MM/yyyy)" }
+    if (System.getProperty("JOB_NAME") == null || System.getProperty("DATE") == null) {
+        KotlinLogging.logger {}.error { "Propriétés systèmes manquantes : JOB_NAME et DATE (dd/MM/yyyy)" }
         exitProcess(1)
     } else {
         exitProcess(
