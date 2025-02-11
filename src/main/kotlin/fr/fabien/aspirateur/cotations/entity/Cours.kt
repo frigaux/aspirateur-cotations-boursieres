@@ -1,6 +1,6 @@
 package fr.fabien.aspirateur.cotations.entity
 
-import fr.fabien.aspirateur.cotations.configuration.ListFloatConverter
+import fr.fabien.aspirateur.cotations.configuration.MutableListDoubleConverter
 import jakarta.persistence.*
 import java.time.LocalDate
 
@@ -23,27 +23,27 @@ class Cours(
     val date: LocalDate,
 
     @Column(nullable = false)
-    var ouverture: Float,
+    var ouverture: Double,
 
     @Column(nullable = false)
-    var plusHaut: Float,
+    var plusHaut: Double,
 
     @Column(nullable = false)
-    var plusBas: Float,
+    var plusBas: Double,
 
     @Column(nullable = false)
-    var cloture: Float,
+    var cloture: Double,
 
     @Column(nullable = false)
     var volume: Long,
 
     @Lob
-    @Column(nullable = true, length = 65535)
-    @Convert(converter = ListFloatConverter::class)
-    var moyennesMobiles: List<Float>?,
+    @Column(nullable = false, length = 65535)
+    @Convert(converter = MutableListDoubleConverter::class)
+    val moyennesMobiles: MutableList<Double>,
 
-    @Column(nullable = true)
-    var alerte: Boolean?,
+    @Column(nullable = false)
+    var alerte: Boolean,
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

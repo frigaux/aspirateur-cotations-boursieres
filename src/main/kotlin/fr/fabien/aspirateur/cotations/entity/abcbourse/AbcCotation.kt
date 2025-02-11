@@ -5,16 +5,16 @@ import jakarta.persistence.*
 @Entity
 class AbcCotation(
     @Column(nullable = false)
-    var ouverture: Float,
+    var ouverture: Double,
 
     @Column(nullable = false)
-    var plusHaut: Float,
+    var plusHaut: Double,
 
     @Column(nullable = false)
-    var plusBas: Float,
+    var plusBas: Double,
 
     @Column(nullable = false)
-    var cloture: Float,
+    var cloture: Double,
 
     @Column(nullable = false)
     var volume: Long,

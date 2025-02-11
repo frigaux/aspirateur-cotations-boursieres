@@ -42,7 +42,7 @@ class TaskletAbcToValeurCours(
 
             abcLibelle.abcCotation?.let { cotation ->
                 if (valeur.cours.isEmpty()) {
-                    val cours: Cours = Cours(
+                    val cours = Cours(
                         valeur,
                         abcLibelle.date,
                         cotation.ouverture,
@@ -50,8 +50,8 @@ class TaskletAbcToValeurCours(
                         cotation.plusBas,
                         cotation.cloture,
                         cotation.volume,
-                        listOf(),
-                        null
+                        mutableListOf(),
+                        false
                     )
                     repositoryCours.save(cours)
                 } else {

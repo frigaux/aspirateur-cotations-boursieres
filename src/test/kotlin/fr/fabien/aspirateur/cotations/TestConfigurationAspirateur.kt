@@ -27,9 +27,12 @@ import java.time.LocalDate
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class TestConfigurationAspirateur(
     @Autowired private val jobLauncherTestUtils: JobLauncherTestUtils,
+
     @Autowired private val jobMajAbcLibelles: Job,
     @Autowired private val jobMajAbcCotations: Job,
     @Autowired private val jobAbcToValeurCours: Job,
+    @Autowired private val jobCalculerMoyennes: Job,
+
     @Autowired private val repositoryAbcLibelle: RepositoryAbcLibelle,
     @Autowired private val repositoryAbcCotation: RepositoryAbcCotation,
     @Autowired private val repositoryValeur: RepositoryValeur,
@@ -59,7 +62,7 @@ class TestConfigurationAspirateur(
         jobLauncherTestUtils.setJob(jobMajAbcLibelles)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
-        Assertions.assertTrue(repositoryAbcLibelle.count() > 0)
+        Assertions.assertTrue(repositoryAbcLibelle.count() > 0, "aucun libellé récupéré depuis ABC bourse !")
     }
 
     @Test
@@ -69,7 +72,7 @@ class TestConfigurationAspirateur(
         jobLauncherTestUtils.setJob(jobMajAbcCotations)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
-        Assertions.assertTrue(repositoryAbcCotation.count() > 0)
+        Assertions.assertTrue(repositoryAbcCotation.count() > 0, "aucune cotation récupéré depuis ABC bourse !")
     }
 
     @Test
@@ -79,7 +82,19 @@ class TestConfigurationAspirateur(
         jobLauncherTestUtils.setJob(jobAbcToValeurCours)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
-        Assertions.assertTrue(repositoryValeur.count() > 0)
-        Assertions.assertTrue(repositoryCours.count() > 0)
+        Assertions.assertTrue(repositoryValeur.count() > 0, "aucune valeur !")
+        Assertions.assertTrue(repositoryCours.count() > 0, "aucun cours !")
+    }
+
+    @Test
+    @Order(4)
+    @Throws(Exception::class)
+    fun launchJobCalculerMoyennes_WhenJobEnds_ThenThereAreMoyennesInRepository() {
+        jobLauncherTestUtils.setJob(jobCalculerMoyennes)
+        val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
+        Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
+        repositoryCours.queryJoinValeur().forEach{ cours ->
+            Assertions.assertTrue(cours.moyennesMobiles.size > 0, "la moyenne mobile n'a pas été calculée pour le ticker ${cours.valeur.ticker}")
+        }
     }
 }
