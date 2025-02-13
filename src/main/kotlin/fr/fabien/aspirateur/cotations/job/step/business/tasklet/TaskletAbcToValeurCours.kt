@@ -1,9 +1,9 @@
 package fr.fabien.aspirateur.cotations.job.step.business.tasklet
 
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur
-import fr.fabien.aspirateur.cotations.entity.abcbourse.AbcLibelle
 import fr.fabien.aspirateur.cotations.entity.Cours
 import fr.fabien.aspirateur.cotations.entity.Valeur
+import fr.fabien.aspirateur.cotations.entity.abcbourse.AbcLibelle
 import fr.fabien.aspirateur.cotations.repository.RepositoryAbcLibelle
 import fr.fabien.aspirateur.cotations.repository.RepositoryCours
 import fr.fabien.aspirateur.cotations.repository.RepositoryValeur
@@ -41,28 +41,18 @@ class TaskletAbcToValeurCours(
             repositoryValeur.save(valeur)
 
             abcLibelle.abcCotation?.let { cotation ->
-                if (valeur.cours.isEmpty()) {
-                    val cours = Cours(
-                        valeur,
-                        abcLibelle.date,
-                        cotation.ouverture,
-                        cotation.plusHaut,
-                        cotation.plusBas,
-                        cotation.cloture,
-                        cotation.volume,
-                        mutableListOf(),
-                        false
-                    )
-                    repositoryCours.save(cours)
-                } else {
-                    val cours: Cours = valeur.cours.elementAt(0)
-                    cours.ouverture = cotation.ouverture
-                    cours.plusHaut = cotation.plusHaut
-                    cours.plusBas = cotation.plusBas
-                    cours.cloture = cotation.cloture
-                    cours.volume = cotation.volume
-                    repositoryCours.save(cours)
-                }
+                val cours = Cours(
+                    valeur,
+                    abcLibelle.date,
+                    cotation.ouverture,
+                    cotation.plusHaut,
+                    cotation.plusBas,
+                    cotation.cloture,
+                    cotation.volume,
+                    mutableListOf(),
+                    false
+                )
+                repositoryCours.save(cours)
             }
         }
 
