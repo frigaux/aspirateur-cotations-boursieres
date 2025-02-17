@@ -164,24 +164,13 @@
                     proxies for example.
                     -->
                     <!--
-                    In order to be able to use Kotlin non-nullable properties with JPA, Kotlin JPA plugin is also
-                    enabled. It generates no-arg constructors for any class annotated with @Entity, @MappedSuperclass or
-                    @Embeddable.
-                    -->
-                    <!--
                     In order to make lazy fetching working as expected, entities should be open as described in
                     KT-28525. We are going to use the Kotlin allopen plugin for that purpose.
                     -->
                     <compilerPlugins>
                         <plugin>spring</plugin>
-                        <plugin>jpa</plugin>
                         <plugin>all-open</plugin>
                     </compilerPlugins>
-                    <pluginOptions>
-                        <option>all-open:annotation=jakarta.persistence.Entity</option>
-                        <option>all-open:annotation=jakarta.persistence.Embeddable</option>
-                        <option>all-open:annotation=jakarta.persistence.MappedSuperclass</option>
-                    </pluginOptions>
                 </configuration>
                 <dependencies>
                     <dependency>
