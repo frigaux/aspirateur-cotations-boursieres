@@ -1,10 +1,10 @@
 package fr.fabien.aspirateur.cotations
 
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur.Companion.DATE
-import fr.fabien.aspirateur.cotations.repository.RepositoryAbcCotation
-import fr.fabien.aspirateur.cotations.repository.RepositoryAbcLibelle
-import fr.fabien.aspirateur.cotations.repository.RepositoryCours
-import fr.fabien.aspirateur.cotations.repository.RepositoryValeur
+import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcCotation
+import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcLibelle
+import fr.fabien.jpa.cotations.repository.RepositoryCours
+import fr.fabien.jpa.cotations.repository.RepositoryValeur
 import org.junit.jupiter.api.*
 import org.springframework.batch.core.*
 import org.springframework.batch.test.JobLauncherTestUtils

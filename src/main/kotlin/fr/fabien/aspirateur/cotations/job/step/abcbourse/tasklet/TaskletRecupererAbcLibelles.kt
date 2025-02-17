@@ -1,7 +1,7 @@
 package fr.fabien.aspirateur.cotations.job.step.abcbourse.tasklet
 
-import fr.fabien.aspirateur.cotations.dto.Marche
 import fr.fabien.aspirateur.cotations.service.ServiceAbcBourse
+import fr.fabien.jpa.cotations.Marche
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cookies.*

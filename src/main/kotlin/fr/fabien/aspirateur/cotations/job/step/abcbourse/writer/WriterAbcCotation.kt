@@ -2,9 +2,9 @@ package fr.fabien.aspirateur.cotations.job.step.abcbourse.writer
 
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur
 import fr.fabien.aspirateur.cotations.dto.abcbourse.DtoAbcCotation
-import fr.fabien.aspirateur.cotations.entity.abcbourse.AbcCotation
-import fr.fabien.aspirateur.cotations.entity.abcbourse.AbcLibelle
-import fr.fabien.aspirateur.cotations.repository.RepositoryAbcLibelle
+import fr.fabien.jpa.cotations.entity.abcbourse.AbcCotation
+import fr.fabien.jpa.cotations.entity.abcbourse.AbcLibelle
+import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcLibelle
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.UnexpectedJobExecutionException
 import org.springframework.batch.core.annotation.BeforeStep

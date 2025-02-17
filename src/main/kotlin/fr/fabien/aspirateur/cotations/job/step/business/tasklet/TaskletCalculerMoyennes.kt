@@ -1,10 +1,10 @@
 package fr.fabien.aspirateur.cotations.job.step.business.tasklet
 
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur
-import fr.fabien.aspirateur.cotations.entity.Cours
-import fr.fabien.aspirateur.cotations.entity.Valeur
-import fr.fabien.aspirateur.cotations.repository.RepositoryCours
-import fr.fabien.aspirateur.cotations.repository.RepositoryValeur
+import fr.fabien.jpa.cotations.entity.Cours
+import fr.fabien.jpa.cotations.entity.Valeur
+import fr.fabien.jpa.cotations.repository.RepositoryCours
+import fr.fabien.jpa.cotations.repository.RepositoryValeur
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
