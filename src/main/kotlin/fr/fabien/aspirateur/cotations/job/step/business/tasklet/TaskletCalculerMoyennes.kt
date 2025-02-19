@@ -12,6 +12,7 @@ import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDate
 
 @Component
@@ -36,7 +37,7 @@ class TaskletCalculerMoyennes(
         lesCours.forEach { cours ->
             count++
             sum = sum.plus(BigDecimal(cours.cloture))
-            coursALaDate.moyennesMobiles.add(sum.divide(BigDecimal(count)).toDouble())
+            coursALaDate.moyennesMobiles.add(sum.divide(BigDecimal(count), 5, RoundingMode.HALF_UP).toDouble())
         }
         coursALaDate.alerte = determinerAlerte(lesCours)
         repositoryCours.save(coursALaDate)
