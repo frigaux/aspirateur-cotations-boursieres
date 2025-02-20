@@ -5,6 +5,7 @@ import fr.fabien.jpa.cotations.entity.Cours
 import fr.fabien.jpa.cotations.entity.Valeur
 import fr.fabien.jpa.cotations.repository.RepositoryCours
 import fr.fabien.jpa.cotations.repository.RepositoryValeur
+import mu.KotlinLogging
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
@@ -22,10 +23,15 @@ class TaskletCalculerMoyennes(
     private val repositoryCours: RepositoryCours
 ) : Tasklet {
 
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
+
     override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus? {
         val date: LocalDate = contribution.stepExecution.jobParameters.getLocalDate(ApplicationAspirateur.DATE)!!
-        repositoryValeur.queryJoinCoursByDate(date)
-            .forEach { valeur -> calculerMoyennesMobiles(valeur, date) }
+        val valeurs: List<Valeur> = repositoryValeur.queryJoinCoursByDate(date)
+        logger.info { "Nombre de cours le $date : ${valeurs.size}"}
+        valeurs.forEach { valeur -> calculerMoyennesMobiles(valeur, date) }
         return RepeatStatus.FINISHED
     }
 

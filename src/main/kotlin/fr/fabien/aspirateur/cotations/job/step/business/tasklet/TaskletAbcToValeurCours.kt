@@ -7,6 +7,7 @@ import fr.fabien.jpa.cotations.entity.abcbourse.AbcLibelle
 import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcLibelle
 import fr.fabien.jpa.cotations.repository.RepositoryCours
 import fr.fabien.jpa.cotations.repository.RepositoryValeur
+import mu.KotlinLogging
 import org.springframework.batch.core.StepContribution
 import org.springframework.batch.core.scope.context.ChunkContext
 import org.springframework.batch.core.step.tasklet.Tasklet
@@ -23,9 +24,16 @@ class TaskletAbcToValeurCours(
     private val repositoryCours: RepositoryCours
 ) : Tasklet {
 
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
+
     override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus? {
         val date: LocalDate = contribution.stepExecution.jobParameters.getLocalDate(ApplicationAspirateur.DATE)!!
         val abcLibelles: List<AbcLibelle> = repositoryAbcLibelle.queryByDate(date)
+        logger.info { "Nombre de libellés récupérés sur ABCBourse le $date : ${abcLibelles.size}"}
+        val nbCotations: Int = abcLibelles.filter { abcLibelle: AbcLibelle -> abcLibelle.abcCotation != null }.size
+        logger.info { "Nombre de cotations récupérés sur ABCBourse le $date : $nbCotations"}
         val valeurByTicker: Map<String, Valeur> = repositoryValeur
             .findAll()
             .associateBy { it.ticker }

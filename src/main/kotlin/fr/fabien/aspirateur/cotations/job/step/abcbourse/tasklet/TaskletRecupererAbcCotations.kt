@@ -57,8 +57,13 @@ class TaskletRecupererAbcCotations(val serviceAbcBourse: ServiceAbcBourse) : Tas
         token = serviceAbcBourse.getToken(client, domain + pathLibelles)
         logger.info { "RequestVerificationToken = $token" }
         getCotations(client, date)
-        logger.info { "Cotations ($charset)${System.lineSeparator()} ${ByteArrayResource(csv!!).getContentAsString(
-            charset!!)}" }
+        logger.info {
+            "Cotations ($charset)${System.lineSeparator()} ${
+                ByteArrayResource(csv!!).getContentAsString(
+                    charset!!
+                )
+            }"
+        }
         client.close()
         executionContext.putString(CHARSET, charset!!.name())
         executionContext.put(CSV, csv)

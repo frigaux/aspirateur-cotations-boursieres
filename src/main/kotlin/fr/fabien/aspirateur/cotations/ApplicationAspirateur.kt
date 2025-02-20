@@ -22,12 +22,14 @@ class ApplicationAspirateur(val jobLauncher: JobLauncher, val context: Applicati
     companion object {
         // job parameters keys
         val DATE: String = "date"
+        private val logger = KotlinLogging.logger {}
     }
 
     override fun run(vararg args: String) {
         val jobName: String? = System.getProperty("JOB_NAME")
         val strDate: String? = System.getProperty("DATE")
         if (jobName != null && strDate != null) {
+            logger.info { "Date = $strDate" }
             val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
             val job: Job = context.getBean(jobName) as Job
             val jobParameters = JobParametersBuilder()

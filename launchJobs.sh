@@ -1,7 +1,6 @@
 #!/bin/bash
 
 date=$(date +"%d/%m/%Y")
-echo $date
 dir=target
 
 java -Dspring.profiles.active=dev -DJOB_NAME=jobMajAbcLibelles -DDATE=$date -jar $dir/aspirateur-cotations-boursieres-0.0.1-SNAPSHOT.jar
