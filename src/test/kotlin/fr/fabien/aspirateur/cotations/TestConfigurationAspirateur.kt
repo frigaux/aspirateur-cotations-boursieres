@@ -1,10 +1,10 @@
 package fr.fabien.aspirateur.cotations
 
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur.Companion.DATE
-import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcCotation
-import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcLibelle
 import fr.fabien.jpa.cotations.repository.RepositoryCours
 import fr.fabien.jpa.cotations.repository.RepositoryValeur
+import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcCotation
+import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcLibelle
 import org.junit.jupiter.api.*
 import org.springframework.batch.core.*
 import org.springframework.batch.test.JobLauncherTestUtils
@@ -15,11 +15,14 @@ import org.springframework.test.context.ActiveProfiles
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-
 /**
- * Les tests ne sont pas mockés.
- * Ce sont des tests d'intégration de bout en bout.
- * Seules les DataSources sont mockées avec un HSQLDB monté en mémoire pour la durée des tests (voir @Profile("!test"))
+ * Les DataSources sont mockées avec un H2 monté en mémoire pour la durée des tests (voir @Profile("!test")).
+ *
+ * Le reste n'est pas mocké et les tests sont exécutés dans l'ordre suivant :
+ * 1 - récupération des libellés depuis ABCBourse
+ * 2 - récupération des cotations depuis ABCBourse
+ * 3 - conversion des libellés/cotations en valeurs/cours
+ * 4 - calcul des moyennes mobiles
  */
 @ActiveProfiles("test")
 @SpringBatchTest
@@ -93,8 +96,11 @@ class TestConfigurationAspirateur(
         jobLauncherTestUtils.setJob(jobCalculerMoyennes)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
-        repositoryCours.queryJoinValeur().forEach{ cours ->
-            Assertions.assertTrue(cours.moyennesMobiles.size > 0, "la moyenne mobile n'a pas été calculée pour le ticker ${cours.valeur.ticker}")
+        repositoryCours.queryJoinValeur().forEach { cours ->
+            Assertions.assertTrue(
+                cours.moyennesMobiles.size > 0,
+                "la moyenne mobile n'a pas été calculée pour le ticker ${cours.valeur.ticker}"
+            )
         }
     }
 }
