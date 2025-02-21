@@ -61,7 +61,7 @@ class TestConfigurationAspirateur(
     @Test
     @Order(1)
     @Throws(Exception::class)
-    fun launchJobMajLibelles_WhenJobEnds_ThenThereAreLibelleInRepository() {
+    fun `Given jobMajAbcLibelles when launch job then there are libelles in repository (H2)`() {
         jobLauncherTestUtils.setJob(jobMajAbcLibelles)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
@@ -71,7 +71,7 @@ class TestConfigurationAspirateur(
     @Test
     @Order(2)
     @Throws(Exception::class)
-    fun launchJobMajCotations_WhenJobEnds_ThenThereAreCotationInRepository() {
+    fun `Given jobMajAbcCotations when launch job then there are cotations in repository (H2)`() {
         jobLauncherTestUtils.setJob(jobMajAbcCotations)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
@@ -81,7 +81,7 @@ class TestConfigurationAspirateur(
     @Test
     @Order(3)
     @Throws(Exception::class)
-    fun launchJobAbcToValeurCours_WhenJobEnds_ThenThereAreValeurCoursInRepository() {
+    fun `Given jobAbcToValeurCours when launch job then there are valeurs and cours in repository (H2)`() {
         jobLauncherTestUtils.setJob(jobAbcToValeurCours)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
@@ -92,7 +92,7 @@ class TestConfigurationAspirateur(
     @Test
     @Order(4)
     @Throws(Exception::class)
-    fun launchJobCalculerMoyennes_WhenJobEnds_ThenThereAreMoyennesInRepository() {
+    fun `Given jobCalculerMoyennes when launch job then there are moyennes mobiles in repository (H2)`() {
         jobLauncherTestUtils.setJob(jobCalculerMoyennes)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
