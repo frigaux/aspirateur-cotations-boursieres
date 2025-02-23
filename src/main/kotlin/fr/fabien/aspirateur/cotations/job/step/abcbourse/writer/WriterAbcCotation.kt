@@ -25,7 +25,7 @@ class WriterAbcCotation(private val repositoryAbcLibelle: RepositoryAbcLibelle) 
     }
 
     @BeforeStep
-    fun beforeStep(stepExecution: StepExecution) {
+    private fun beforeStep(stepExecution: StepExecution) {
         Companion.stepExecution = stepExecution
     }
 

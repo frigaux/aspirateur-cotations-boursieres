@@ -32,7 +32,7 @@ class ReaderAbcLibelle : ItemReader<DtoAbcLibelle> {
     }
 
     @BeforeStep
-    fun beforeStep(stepExecution: StepExecution) {
+    private fun beforeStep(stepExecution: StepExecution) {
         executionContext = stepExecution.jobExecution.executionContext
     }
 
