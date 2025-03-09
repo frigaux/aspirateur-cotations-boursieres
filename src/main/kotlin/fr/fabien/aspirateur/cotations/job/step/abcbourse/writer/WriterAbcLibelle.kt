@@ -16,9 +16,9 @@ import java.time.LocalDate
 @Scope("singleton")
 class WriterAbcLibelle(private val repositoryAbcLibelle: RepositoryAbcLibelle) : ItemWriter<DtoAbcLibelle> {
     companion object {
-        var stepExecution: StepExecution? = null
+        lateinit var stepExecution: StepExecution
         val date: LocalDate by lazy {
-            stepExecution!!.jobParameters.getLocalDate(ApplicationAspirateur.DATE)!!
+            stepExecution.jobParameters.getLocalDate(ApplicationAspirateur.DATE)!!
         }
     }
 

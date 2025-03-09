@@ -16,12 +16,12 @@ import org.springframework.stereotype.Component
 @Scope("singleton")
 class ReaderAbcLibelle : ItemReader<DtoAbcLibelle> {
     companion object {
-        var executionContext: ExecutionContext? = null
+        lateinit var executionContext: ExecutionContext
         val reader: FlatFileItemReader<DtoAbcLibelle> by lazy {
             FlatFileItemReaderBuilder<DtoAbcLibelle>()
                 .name("readerLibelle")
-                .resource(ByteArrayResource(executionContext!!.get(TaskletRecupererAbcLibelles.CSV) as ByteArray))
-                .encoding(executionContext!!.getString(TaskletRecupererAbcLibelles.CHARSET))
+                .resource(ByteArrayResource(executionContext.get(TaskletRecupererAbcLibelles.CSV) as ByteArray))
+                .encoding(executionContext.getString(TaskletRecupererAbcLibelles.CHARSET))
                 .delimited()
                 .delimiter(";")
                 .names("isin", "nom", "ticker", "marche")

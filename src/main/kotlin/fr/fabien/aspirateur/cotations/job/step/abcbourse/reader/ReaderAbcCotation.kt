@@ -21,12 +21,12 @@ import java.time.format.DateTimeFormatter
 @Scope("singleton")
 class ReaderAbcCotation : ItemReader<DtoAbcCotation> {
     companion object {
-        var executionContext: ExecutionContext? = null
+        lateinit var executionContext: ExecutionContext
         val reader: FlatFileItemReader<DtoAbcCotation> by lazy {
             FlatFileItemReaderBuilder<DtoAbcCotation>()
                 .name("readerCotation")
-                .resource(ByteArrayResource(executionContext!!.get(TaskletRecupererAbcCotations.CSV) as ByteArray))
-                .encoding(executionContext!!.getString(TaskletRecupererAbcCotations.CHARSET))
+                .resource(ByteArrayResource(executionContext.get(TaskletRecupererAbcCotations.CSV) as ByteArray))
+                .encoding(executionContext.getString(TaskletRecupererAbcCotations.CHARSET))
                 .delimited()
                 .delimiter(";")
                 .names("ticker", "date", "ouverture", "plusHaut", "plusBas", "cloture", "volume")
