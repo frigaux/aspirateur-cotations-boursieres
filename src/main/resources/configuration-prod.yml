@@ -1,0 +1,57 @@
+# logback over sfl4j
+# https://docs.spring.io/spring-boot/how-to/logging.html
+logging:
+  config: "classpath:logback-prod.xml"
+  file:
+    name: "/home/fabien/log/aspirateur.log"
+  threshold:
+    file: INFO
+
+# Datasources
+# https://docs.spring.io/spring-boot/reference/data/sql.html#data.sql.datasource.configuration
+# https://docs.spring.io/spring-boot/how-to/data-access.html
+business:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/cotations"
+    username: ${APP_DATASOURCE_USERNAME}
+    password: ${APP_DATASOURCE_PASSWORD}
+    driver-class-name: "com.mysql.cj.jdbc.Driver"
+    max-total: 30
+    configuration:maximum-pool-size: 30
+
+job-repository:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/job_repository"
+    username: ${APP_DATASOURCE_USERNAME}
+    password: ${APP_DATASOURCE_PASSWORD}
+    driver-class-name: "com.mysql.cj.jdbc.Driver"
+    max-total: 30
+    configuration:maximum-pool-size: 30
+
+# JPA with hibernate
+spring:
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+    hibernate:
+      # https://docs.spring.io/spring-boot/how-to/data-initialization.html#howto.data-initialization.using-hibernate
+      # The standard Hibernate property values are create, update, create-drop, validate and none :
+      # - create : hibernate first drops existing tables and then creates new tables,
+      # - update : the object model created based on the mappings (annotations or XML) is compared with the existing schema,
+      #   and then Hibernate updates the schema according to the diff. It never deletes the existing tables
+      #   or columns even if they are no longer required by the application,
+      # - create-drop : similar to create, with the addition that Hibernate will drop the database after all operations are completed,
+      #   typically used for unit testing,
+      # - validate : hibernate only validates whether the tables and columns exist; otherwise, it throws an exception,
+      # - none : this value effectively turns off the DDL generation.
+      ddl-auto: update
+  batch:
+    jdbc:
+      # https://docs.spring.io/spring-boot/how-to/data-initialization.html#howto.data-initialization.batch
+      initialize-schema: always
+    job:
+      # https://docs.spring.io/spring-boot/api/java/org/springframework/boot/autoconfigure/batch/BatchAutoConfiguration.html
+      # https://howtodoinjava.com/spring-batch/spring-boot-batch-tutorial-example/
+      enabled: false
