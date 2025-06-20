@@ -5,6 +5,7 @@ import fr.fabien.jpa.cotations.repository.RepositoryCours
 import fr.fabien.jpa.cotations.repository.RepositoryValeur
 import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcCotation
 import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcLibelle
+import fr.fabien.jpa.cotations.repository.boursorama.RepositoryBoursoramaCours
 import org.junit.jupiter.api.*
 import org.springframework.batch.core.*
 import org.springframework.batch.test.JobLauncherTestUtils
@@ -21,8 +22,9 @@ import java.time.LocalDate
  * Le reste n'est pas mocké et les tests sont exécutés dans l'ordre suivant :
  * 1 - récupération des libellés depuis ABCBourse
  * 2 - récupération des cotations depuis ABCBourse
- * 3 - conversion des libellés/cotations en valeurs/cours
- * 4 - calcul des moyennes mobiles
+ * 3 - récupération des cours depuis Boursorama
+ * 4 - conversion des libellés/cotations en valeurs/cours
+ * 5 - calcul des moyennes mobiles
  */
 @ActiveProfiles("test")
 @SpringBatchTest
@@ -33,11 +35,13 @@ class TestConfigurationAspirateur(
 
     @Autowired private val jobMajAbcLibelles: Job,
     @Autowired private val jobMajAbcCotations: Job,
-    @Autowired private val jobAbcToValeurCours: Job,
+    @Autowired private val jobMajBoursoramaCours: Job,
+    @Autowired private val jobConvertirEnValeurCours: Job,
     @Autowired private val jobCalculerMoyennes: Job,
 
     @Autowired private val repositoryAbcLibelle: RepositoryAbcLibelle,
     @Autowired private val repositoryAbcCotation: RepositoryAbcCotation,
+    @Autowired private val repositoryBoursoramaCours: RepositoryBoursoramaCours,
     @Autowired private val repositoryValeur: RepositoryValeur,
     @Autowired private val repositoryCours: RepositoryCours
 ) {
@@ -81,8 +85,18 @@ class TestConfigurationAspirateur(
     @Test
     @Order(3)
     @Throws(Exception::class)
-    fun `Given jobAbcToValeurCours when launch job then there are valeurs and cours in repository (H2)`() {
-        jobLauncherTestUtils.setJob(jobAbcToValeurCours)
+    fun `Given jobMajBoursoramaCours when launch job then there are cours in repository (H2)`() {
+        jobLauncherTestUtils.setJob(jobMajBoursoramaCours)
+        val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
+        Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
+        Assertions.assertTrue(repositoryBoursoramaCours.count() > 0, "aucune cours récupéré depuis boursorama !")
+    }
+
+    @Test
+    @Order(4)
+    @Throws(Exception::class)
+    fun `Given jobConvertirEnValeurCours when launch job then there are valeurs and cours in repository (H2)`() {
+        jobLauncherTestUtils.setJob(jobConvertirEnValeurCours)
         val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
         Assertions.assertTrue(repositoryValeur.count() > 0, "aucune valeur !")
@@ -90,7 +104,7 @@ class TestConfigurationAspirateur(
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @Throws(Exception::class)
     fun `Given jobCalculerMoyennes when launch job then there are moyennes mobiles in repository (H2)`() {
         jobLauncherTestUtils.setJob(jobCalculerMoyennes)

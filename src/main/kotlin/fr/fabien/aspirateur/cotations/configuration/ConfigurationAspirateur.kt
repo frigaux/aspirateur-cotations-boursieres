@@ -2,6 +2,7 @@ package fr.fabien.aspirateur.cotations.configuration
 
 import fr.fabien.aspirateur.cotations.dto.abcbourse.DtoAbcCotation
 import fr.fabien.aspirateur.cotations.dto.abcbourse.DtoAbcLibelle
+import fr.fabien.aspirateur.cotations.dto.boursorama.DtoBoursoramaCours
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.JobBuilder
@@ -18,6 +19,7 @@ import org.springframework.orm.jpa.JpaTransactionManager
 @Configuration
 class ConfigurationAspirateur {
 
+    // récupération des libellés sur ABCbourse et persistence dans le modèle ABC
     @Bean
     fun stepRecupererAbcLibelles(
         jobRepository: JobRepository,
@@ -55,6 +57,7 @@ class ConfigurationAspirateur {
             .build()
     }
 
+    // récupération des cotations sur ABCbourse et persistence dans le modèle ABC
     @Bean
     fun stepRecupererAbcCotations(
         jobRepository: JobRepository,
@@ -92,27 +95,67 @@ class ConfigurationAspirateur {
             .build()
     }
 
+    // récupération des cours sur Boursorama et persistence dans le modèle Boursorama
     @Bean
-    fun stepAbcToValeurCours(
+    fun stepRecupererBoursoramaCours(
         jobRepository: JobRepository,
         transactionManager: JpaTransactionManager,
-        taskletAbcToValeurCours: Tasklet
+        taskletRecupererBoursoramaCours: Tasklet
     ): Step {
-        return StepBuilder("stepAbcToValeurCours", jobRepository)
-            .tasklet(taskletAbcToValeurCours, transactionManager)
+        return StepBuilder("stepRecupererBoursoramaCours", jobRepository)
+            .tasklet(taskletRecupererBoursoramaCours, transactionManager)
             .build()
     }
 
     @Bean
-    fun jobAbcToValeurCours(
+    fun stepPersisterBoursoramaCours(
         jobRepository: JobRepository,
-        stepAbcToValeurCours: Step
-    ): Job {
-        return JobBuilder("jobAbcToValeurCours", jobRepository)
-            .start(stepAbcToValeurCours)
+        transactionManager: JpaTransactionManager,
+        readerBoursoramaCours: ItemReader<DtoBoursoramaCours>,
+        writerBoursoramaCours: ItemWriter<DtoBoursoramaCours>
+    ): Step {
+        return StepBuilder("stepPersisterBoursoramaCours", jobRepository)
+            .chunk<DtoBoursoramaCours, DtoBoursoramaCours>(10, transactionManager)
+            .reader(readerBoursoramaCours)
+            .writer(writerBoursoramaCours)
             .build()
     }
 
+    @Bean
+    fun jobMajBoursoramaCours(
+        jobRepository: JobRepository,
+        stepRecupererBoursoramaCours: Step,
+        stepPersisterBoursoramaCours: Step
+    ): Job {
+        return JobBuilder("jobMajBoursoramaCours", jobRepository)
+            .start(stepRecupererBoursoramaCours)
+            .next(stepPersisterBoursoramaCours)
+            .build()
+    }
+
+    // conversion modèle ABC ou boursorama -> modèle normalisé
+    @Bean
+    fun stepConvertirEnValeurCours(
+        jobRepository: JobRepository,
+        transactionManager: JpaTransactionManager,
+        taskletConvertirEnValeurCours: Tasklet
+    ): Step {
+        return StepBuilder("stepConvertirEnValeurCours", jobRepository)
+            .tasklet(taskletConvertirEnValeurCours, transactionManager)
+            .build()
+    }
+
+    @Bean
+    fun jobConvertirEnValeurCours(
+        jobRepository: JobRepository,
+        stepConvertirEnValeurCours: Step
+    ): Job {
+        return JobBuilder("jobConvertirEnValeurCours", jobRepository)
+            .start(stepConvertirEnValeurCours)
+            .build()
+    }
+
+    // calcul des moyennes mobiles
     @Bean
     fun stepCalculerMoyennes(
         jobRepository: JobRepository,

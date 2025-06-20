@@ -25,7 +25,7 @@ import java.io.InputStreamReader
 import java.nio.charset.Charset
 import java.util.zip.GZIPInputStream
 
-
+// TODO : il y a désormais besoin d'une authentification
 @Component
 @Scope("singleton")
 class TaskletRecupererAbcLibelles(val serviceAbcBourse: ServiceAbcBourse) : Tasklet {
@@ -45,11 +45,11 @@ class TaskletRecupererAbcLibelles(val serviceAbcBourse: ServiceAbcBourse) : Task
 
     override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus {
         return runBlocking {
-            requeteAbcBourse(contribution.stepExecution.jobExecution.executionContext)
+            requetesAbcBourse(contribution.stepExecution.jobExecution.executionContext)
         }
     }
 
-    private suspend fun requeteAbcBourse(executionContext: ExecutionContext): RepeatStatus {
+    private suspend fun requetesAbcBourse(executionContext: ExecutionContext): RepeatStatus {
         val client = HttpClient(CIO) {
             install(HttpCookies)
         }
@@ -57,7 +57,7 @@ class TaskletRecupererAbcLibelles(val serviceAbcBourse: ServiceAbcBourse) : Task
         logger.info { "RequestVerificationToken = $token" }
         getLibelles(client)
         logger.info {
-            "Libellés ($charset)${System.lineSeparator()} ${
+            "Libellés ($charset)${System.lineSeparator()}${
                 ByteArrayResource(csv!!).getContentAsString(
                     charset!!
                 )

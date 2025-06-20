@@ -3,6 +3,7 @@ package fr.fabien.aspirateur.cotations.service
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.HttpStatusCode
 import org.springframework.batch.core.UnexpectedJobExecutionException
 import org.springframework.stereotype.Service
 import java.nio.charset.Charset
@@ -11,7 +12,7 @@ import java.nio.charset.Charset
 class ServiceAbcBourse {
     public suspend fun getToken(client: HttpClient, urlString: String): String {
         val response: HttpResponse = client.get(urlString)
-        if (response.status.value == 200) {
+        if (response.status == HttpStatusCode.OK) {
             val regexpToken = "\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\""
             val content = response.bodyAsText()
             return regexpToken
@@ -59,25 +60,6 @@ class ServiceAbcBourse {
         }
             ?: run {
                 throw UnexpectedJobExecutionException("content-type not found in response headers : ${response.headers}")
-            }
-    }
-
-    public suspend fun findFilename(response: HttpResponse): String {
-        val regexpFilename = "filename=([^;]+);"
-        val contentDisposition: String? = response.headers.get("content-disposition")
-        return contentDisposition?.let {
-            regexpFilename
-                .toRegex()
-                .find(it)
-                ?.let {
-                    it.groups[1]!!.value
-                }
-                ?: run {
-                    throw UnexpectedJobExecutionException("Filename not found in contentDisposition : $contentDisposition")
-                }
-        }
-            ?: run {
-                throw UnexpectedJobExecutionException("content-disposition not found in response headers : ${response.headers}")
             }
     }
 

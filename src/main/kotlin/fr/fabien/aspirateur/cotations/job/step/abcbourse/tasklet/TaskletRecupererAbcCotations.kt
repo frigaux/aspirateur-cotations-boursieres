@@ -2,6 +2,7 @@ package fr.fabien.aspirateur.cotations.job.step.abcbourse.tasklet
 
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur
 import fr.fabien.aspirateur.cotations.service.ServiceAbcBourse
+import fr.fabien.aspirateur.cotations.service.ServiceCommun
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -26,9 +27,13 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.zip.GZIPInputStream
 
+// TODO : il y a désormais besoin d'une authentification
 @Component
 @Scope("singleton")
-class TaskletRecupererAbcCotations(val serviceAbcBourse: ServiceAbcBourse) : Tasklet {
+class TaskletRecupererAbcCotations(
+    val serviceCommun: ServiceCommun,
+    val serviceAbcBourse: ServiceAbcBourse
+) : Tasklet {
 
     companion object {
         // job execution context keys
@@ -46,11 +51,11 @@ class TaskletRecupererAbcCotations(val serviceAbcBourse: ServiceAbcBourse) : Tas
     override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus {
         return runBlocking {
             val date: LocalDate = contribution.stepExecution.jobParameters.getLocalDate(ApplicationAspirateur.DATE)!!
-            requeteAbcBourse(contribution.stepExecution.jobExecution.executionContext, date)
+            requetesAbcBourse(contribution.stepExecution.jobExecution.executionContext, date)
         }
     }
 
-    private suspend fun requeteAbcBourse(executionContext: ExecutionContext, date: LocalDate): RepeatStatus {
+    private suspend fun requetesAbcBourse(executionContext: ExecutionContext, date: LocalDate): RepeatStatus {
         val client = HttpClient(CIO) {
             install(HttpCookies)
         }
@@ -58,7 +63,7 @@ class TaskletRecupererAbcCotations(val serviceAbcBourse: ServiceAbcBourse) : Tas
         logger.info { "RequestVerificationToken = $token" }
         getCotations(client, date)
         logger.info {
-            "Cotations ($charset)${System.lineSeparator()} ${
+            "Cotations ($charset)${System.lineSeparator()}${
                 ByteArrayResource(csv!!).getContentAsString(
                     charset!!
                 )
@@ -77,7 +82,7 @@ class TaskletRecupererAbcCotations(val serviceAbcBourse: ServiceAbcBourse) : Tas
             serviceAbcBourse.findError(response, charset!!)?.let{
                 throw UnexpectedJobExecutionException(it)
             }
-            val filename = serviceAbcBourse.findFilename(response)
+            val filename = serviceCommun.findFilename(response, "filename=([^;]+);")
             if (!filename.contains(date.format(DateTimeFormatter.BASIC_ISO_DATE))) {
                 throw UnexpectedJobExecutionException("Le nom du fichier $filename ne correspond pas à la date demandée $date")
             }
@@ -93,7 +98,7 @@ class TaskletRecupererAbcCotations(val serviceAbcBourse: ServiceAbcBourse) : Tas
         // https://ktor.io/docs/client-requests.html#form_parameters
         // https://ktor.io/docs/client-responses.html#streaming
         val strDate: String = date.format(DateTimeFormatter.ISO_DATE)
-        val response: HttpResponse = client.submitForm(
+        return client.submitForm(
             url = domain + pathLibelles,
             formParameters = parameters {
                 append("dateFrom", strDate)
@@ -122,6 +127,5 @@ class TaskletRecupererAbcCotations(val serviceAbcBourse: ServiceAbcBourse) : Tas
                 append(HttpHeaders.Referrer, domain + pathLibelles)
             }
         }
-        return response
     }
 }
