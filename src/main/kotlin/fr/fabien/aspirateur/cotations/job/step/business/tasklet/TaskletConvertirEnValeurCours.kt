@@ -35,7 +35,9 @@ class TaskletConvertirEnValeurCours(
         val date: LocalDate = contribution.stepExecution.jobParameters.getLocalDate(ApplicationAspirateur.DATE)!!
         val abcLibelles: List<AbcLibelle> = repositoryAbcLibelle.queryByDate(date)
         logger.info { "Nombre de libellés récupérés sur ABCBourse le $date : ${abcLibelles.size}" }
-        if (abcLibelles.size > 0) { // aspirateur ABCBourse
+        val nbCotations: Int = abcLibelles.filter { abcLibelle: AbcLibelle -> abcLibelle.abcCotation != null }.size
+        logger.info { "Nombre de cotations récupérées sur ABCBourse le $date : $nbCotations" }
+        if (nbCotations > 0) { // aspirateur ABCBourse
             convertirAbc(abcLibelles, date)
         } else { // aspirateur de secours Boursorama
             convertirBoursorama(date);
@@ -48,8 +50,6 @@ class TaskletConvertirEnValeurCours(
         abcLibelles: List<AbcLibelle>,
         date: LocalDate
     ) {
-        val nbCotations: Int = abcLibelles.filter { abcLibelle: AbcLibelle -> abcLibelle.abcCotation != null }.size
-        logger.info { "Nombre de cotations récupérés sur ABCBourse le $date : $nbCotations" }
         val valeurByTicker: Map<String, Valeur> = repositoryValeur
             .findAll()
             .associateBy { it.ticker }
