@@ -6,11 +6,13 @@ import fr.fabien.aspirateur.cotations.service.ServiceCommun
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.batch.core.StepContribution
@@ -58,10 +60,18 @@ class TaskletRecupererAbcCotations(
     private suspend fun requetesAbcBourse(executionContext: ExecutionContext, date: LocalDate): RepeatStatus {
         val client = HttpClient(CIO) {
             install(HttpCookies)
+            install(ContentNegotiation) {
+                json()
+            }
         }
-        token = serviceAbcBourse.getToken(client, domain + pathLibelles)
+
+        val cookies: List<Cookie> = serviceAbcBourse.authentifierEtCookies(client, domain + pathLibelles)
+        logger.info { "Authentification réussie :${System.lineSeparator()}${cookies}" }
+
+        token = serviceAbcBourse.formulaireTelechargement(client, domain + pathLibelles)
         logger.info { "RequestVerificationToken = $token" }
-        getCotations(client, date)
+
+        telechargerCotations(client, date)
         logger.info {
             "Cotations ($charset)${System.lineSeparator()}${
                 ByteArrayResource(csv!!).getContentAsString(
@@ -69,17 +79,20 @@ class TaskletRecupererAbcCotations(
                 )
             }"
         }
+
         client.close()
+
         executionContext.putString(CHARSET, charset!!.name())
         executionContext.put(CSV, csv)
+
         return RepeatStatus.FINISHED
     }
 
-    private suspend fun getCotations(client: HttpClient, date: LocalDate) {
+    private suspend fun telechargerCotations(client: HttpClient, date: LocalDate) {
         val response: HttpResponse = submitFormLibelles(client, date)
         if (response.status.value == 200) {
             charset = serviceAbcBourse.findCharset(response)
-            serviceAbcBourse.findError(response, charset!!)?.let{
+            serviceAbcBourse.findError(response, charset!!)?.let {
                 throw UnexpectedJobExecutionException(it)
             }
             val filename = serviceCommun.findFilename(response, "filename=([^;]+);")

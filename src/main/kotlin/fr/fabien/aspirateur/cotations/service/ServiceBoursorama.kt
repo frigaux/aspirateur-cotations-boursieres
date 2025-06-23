@@ -24,7 +24,7 @@ class ServiceBoursorama(
         private val CHEMIN_FORMULAIRE_EXPORT = "/espace-membres/telecharger-cours/paris"
     }
 
-    public suspend fun authentifierEtCookies(client: HttpClient) {
+    public suspend fun authentifierEtCookies(client: HttpClient): List<Cookie> {
         val response: HttpResponse = client.submitForm(
             url = "${URL_DOMAINE}${CHEMIN_AUTHENTIFICATION}",
             formParameters = parameters {
@@ -39,9 +39,10 @@ class ServiceBoursorama(
         if (response.status != HttpStatusCode.Found) {
             throw UnexpectedJobExecutionException("L'authentification a échouée : ${response.toString()}")
         }
+        return response.setCookie()
     }
 
-    public suspend fun getFormulaire(client: HttpClient): String {
+    public suspend fun formulaireTelechargement(client: HttpClient): String {
         val response: HttpResponse = client.get("${URL_DOMAINE}${CHEMIN_FORMULAIRE_EXPORT}")
         if (response.status == HttpStatusCode.OK) {
             val regexpToken = "name=\"([^\"]+)\"\\s+value=\"Télécharger\""

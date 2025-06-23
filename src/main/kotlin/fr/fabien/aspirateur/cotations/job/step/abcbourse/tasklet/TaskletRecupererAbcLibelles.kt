@@ -4,11 +4,13 @@ import fr.fabien.aspirateur.cotations.service.ServiceAbcBourse
 import fr.fabien.jpa.cotations.Marche
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.batch.core.StepContribution
@@ -52,10 +54,18 @@ class TaskletRecupererAbcLibelles(val serviceAbcBourse: ServiceAbcBourse) : Task
     private suspend fun requetesAbcBourse(executionContext: ExecutionContext): RepeatStatus {
         val client = HttpClient(CIO) {
             install(HttpCookies)
+            install(ContentNegotiation) {
+                json()
+            }
         }
-        token = serviceAbcBourse.getToken(client, domain + pathLibelles)
+
+        val cookies: List<Cookie> = serviceAbcBourse.authentifierEtCookies(client, domain + pathLibelles)
+        logger.info { "Authentification réussie :${System.lineSeparator()}${cookies}" }
+
+        token = serviceAbcBourse.formulaireTelechargement(client, domain + pathLibelles)
         logger.info { "RequestVerificationToken = $token" }
-        getLibelles(client)
+
+        telechargerLibelles(client)
         logger.info {
             "Libellés ($charset)${System.lineSeparator()}${
                 ByteArrayResource(csv!!).getContentAsString(
@@ -63,19 +73,22 @@ class TaskletRecupererAbcLibelles(val serviceAbcBourse: ServiceAbcBourse) : Task
                 )
             }"
         }
+
         client.close()
+
         executionContext.putString(CHARSET, charset!!.name())
         executionContext.put(CSV, csv)
+
         return RepeatStatus.FINISHED
     }
 
-    private suspend fun getLibelles(client: HttpClient) {
+    private suspend fun telechargerLibelles(client: HttpClient) {
         val sb: StringBuilder = StringBuilder()
-        getLibelles(client, "eurolistap")
+        telechargerLibelles(client, "eurolistap")
             .let { lines -> addlines(lines, sb, Marche.EURO_LIST_A) }
-        getLibelles(client, "eurolistbp")
+        telechargerLibelles(client, "eurolistbp")
             .let { lines -> addlines(lines, sb, Marche.EURO_LIST_B) }
-        getLibelles(client, "eurolistcp")
+        telechargerLibelles(client, "eurolistcp")
             .let { lines -> addlines(lines, sb, Marche.EURO_LIST_C) }
         csv = sb.toString().toByteArray(charset!!)
     }
@@ -86,7 +99,7 @@ class TaskletRecupererAbcLibelles(val serviceAbcBourse: ServiceAbcBourse) : Task
         }
     }
 
-    private suspend fun getLibelles(client: HttpClient, cbox: String): List<String> {
+    private suspend fun telechargerLibelles(client: HttpClient, cbox: String): List<String> {
         val response: HttpResponse = submitFormLibelles(client, cbox)
         if (response.status.value == 200 && response.headers.get("content-encoding") == "gzip") {
             charset = serviceAbcBourse.findCharset(response)

@@ -8,6 +8,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.statement.*
+import io.ktor.http.Cookie
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.batch.core.StepContribution
@@ -50,9 +51,10 @@ class TaskletRecupererBoursoramaCours(
             install(HttpCookies)
         }
 
-        serviceBoursorama.authentifierEtCookies(client)
+        val cookies: List<Cookie> = serviceBoursorama.authentifierEtCookies(client)
+        logger.info { "Authentification réussie :${System.lineSeparator()}${cookies}" }
 
-        val name: String = serviceBoursorama.getFormulaire(client)
+        val name: String = serviceBoursorama.formulaireTelechargement(client)
         logger.info { "Nom du paramètre télécharger = $name" }
 
         val csv: ByteArray = telechargerCours(client, name, date, Marche.EURO_LIST_A) +
@@ -61,9 +63,10 @@ class TaskletRecupererBoursoramaCours(
 
         logger.info { "Fichier final :${System.lineSeparator()}${csv.toString(Charsets.UTF_8)}" }
 
+        client.close()
+
         executionContext.put(CSV, csv)
 
-        client.close()
         return RepeatStatus.FINISHED
     }
 
