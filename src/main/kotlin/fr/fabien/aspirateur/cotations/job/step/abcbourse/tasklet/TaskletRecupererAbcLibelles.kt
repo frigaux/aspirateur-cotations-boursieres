@@ -27,7 +27,6 @@ import java.io.InputStreamReader
 import java.nio.charset.Charset
 import java.util.zip.GZIPInputStream
 
-// TODO : il y a désormais besoin d'une authentification
 @Component
 @Scope("singleton")
 class TaskletRecupererAbcLibelles(val serviceAbcBourse: ServiceAbcBourse) : Tasklet {

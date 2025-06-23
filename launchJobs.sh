@@ -11,32 +11,33 @@ fi
 echo $date
 
 dir=target
+vmOptions="-DDATE=$date -Dboursorama.login=l -Dboursorama.password=p -Dabc.login=l -Dabc.password=p"
 
-java -Dspring.profiles.active=dev -DJOB_NAME=jobMajAbcLibelles -DDATE=$date -Dboursorama.login=l -Dboursorama.password=p -Dabc.login=l -Dabc.password=p -jar $dir/aspirateur-cotations-boursieres-0.0.1-SNAPSHOT.jar
+java -Dspring.profiles.active=dev -DJOB_NAME=jobMajAbcLibelles $vmOptions -jar $dir/aspirateur-cotations-boursieres-0.0.1-SNAPSHOT.jar
 
 if [ $? != 0 ]; then
   exit 1
 fi
 
-java -Dspring.profiles.active=dev -DJOB_NAME=jobMajAbcCotations -DDATE=$date -Dboursorama.login=l -Dboursorama.password=p -Dabc.login=l -Dabc.password=p -jar $dir/aspirateur-cotations-boursieres-0.0.1-SNAPSHOT.jar
+java -Dspring.profiles.active=dev -DJOB_NAME=jobMajAbcCotations $vmOptions -jar $dir/aspirateur-cotations-boursieres-0.0.1-SNAPSHOT.jar
 
 if [ $? != 0 ]; then
   exit 2
 fi
 
-java -Dspring.profiles.active=dev -DJOB_NAME=jobMajBoursoramaCours -DDATE=$date -Dboursorama.login=l -Dboursorama.password=p -Dabc.login=l -Dabc.password=p -jar $dir/aspirateur-cotations-boursieres-0.0.1-SNAPSHOT.jar
+java -Dspring.profiles.active=dev -DJOB_NAME=jobMajBoursoramaCours $vmOptions -jar $dir/aspirateur-cotations-boursieres-0.0.1-SNAPSHOT.jar
 
 if [ $? != 0 ]; then
   exit 3
 fi
 
-java -Dspring.profiles.active=dev -DJOB_NAME=jobConvertirEnValeurCours -DDATE=$date -Dboursorama.login=l -Dboursorama.password=p -Dabc.login=l -Dabc.password=p -jar $dir/aspirateur-cotations-boursieres-0.0.1-SNAPSHOT.jar
+java -Dspring.profiles.active=dev -DJOB_NAME=jobConvertirEnValeurCours $vmOptions -jar $dir/aspirateur-cotations-boursieres-0.0.1-SNAPSHOT.jar
 
 if [ $? != 0 ]; then
   exit 4
 fi
 
-java -Dspring.profiles.active=dev -DJOB_NAME=jobCalculerMoyennes -DDATE=$date -Dboursorama.login=l -Dboursorama.password=p -Dabc.login=l -Dabc.password=p -jar $dir/aspirateur-cotations-boursieres-0.0.1-SNAPSHOT.jar
+java -Dspring.profiles.active=dev -DJOB_NAME=jobCalculerMoyennes $vmOptions -jar $dir/aspirateur-cotations-boursieres-0.0.1-SNAPSHOT.jar
 
 if [ $? != 0 ]; then
   exit 5
