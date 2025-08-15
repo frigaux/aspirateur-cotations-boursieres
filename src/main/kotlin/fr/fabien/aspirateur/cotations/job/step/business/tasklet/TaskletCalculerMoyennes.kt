@@ -30,7 +30,7 @@ class TaskletCalculerMoyennes(
     override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus? {
         val date: LocalDate = contribution.stepExecution.jobParameters.getLocalDate(ApplicationAspirateur.DATE)!!
         val valeurs: List<Valeur> = repositoryValeur.queryJoinCoursByDate(date)
-        logger.info { "Nombre de cours le $date : ${valeurs.size}"}
+        logger.info { "Nombre de cours le $date : ${valeurs.size}" }
         valeurs.forEach { valeur -> calculerMoyennesMobiles(valeur, date) }
         return RepeatStatus.FINISHED
     }
@@ -45,17 +45,6 @@ class TaskletCalculerMoyennes(
             sum = sum.plus(BigDecimal(cours.cloture))
             coursALaDate.moyennesMobiles.add(sum.divide(BigDecimal(count), 5, RoundingMode.HALF_UP).toDouble())
         }
-        coursALaDate.alerte = determinerAlerte(lesCours)
         repositoryCours.save(coursALaDate)
-    }
-
-    private fun determinerAlerte(lesCours: List<Cours>): Boolean {
-        if (lesCours.size > 4) {
-            val cours1 = lesCours[0].cloture
-            val diff5_3: Double = lesCours[4].cloture - lesCours[2].cloture
-            val diff3_1: Double = lesCours[2].cloture - lesCours[0].cloture
-            return ((diff5_3 >= diff3_1 && diff3_1 < cours1) || (diff5_3 < diff3_1 && diff3_1 >= cours1))
-        }
-        return false
     }
 }

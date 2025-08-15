@@ -73,8 +73,7 @@ class TaskletConvertirEnValeurCours(
                     cotation.plusBas,
                     cotation.cloture,
                     cotation.volume,
-                    mutableListOf(),
-                    false
+                    mutableListOf()
                 )
                 repositoryCours.save(cours)
             }
@@ -108,8 +107,7 @@ class TaskletConvertirEnValeurCours(
                 bCours.plusBas,
                 bCours.cloture,
                 bCours.volume,
-                mutableListOf(),
-                false
+                mutableListOf()
             )
             repositoryCours.save(cours)
         }
