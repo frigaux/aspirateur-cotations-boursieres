@@ -43,7 +43,7 @@ class TaskletRecupererAbcCotations(
 
         private val logger = KotlinLogging.logger {}
         private val domain: String = "https://www.abcbourse.com"
-        private val pathLibelles: String = "/download/historiques"
+        private val pathCotations: String = "/download/historiques"
         private var token: String? = null
         private var charset: Charset? = null
         private var csv: ByteArray? = null
@@ -64,10 +64,10 @@ class TaskletRecupererAbcCotations(
             }
         }
 
-        val cookies: List<Cookie> = serviceAbcBourse.authentifierEtCookies(client, domain + pathLibelles)
+        val cookies: List<Cookie> = serviceAbcBourse.authentifierEtCookies(client, domain + pathCotations)
         logger.info { "Authentification réussie :${System.lineSeparator()}${cookies}" }
 
-        token = serviceAbcBourse.formulaireTelechargement(client, domain + pathLibelles)
+        token = serviceAbcBourse.formulaireTelechargement(client, domain + pathCotations)
         logger.info { "RequestVerificationToken = $token" }
 
         telechargerCotations(client, date)
@@ -88,7 +88,7 @@ class TaskletRecupererAbcCotations(
     }
 
     private suspend fun telechargerCotations(client: HttpClient, date: LocalDate) {
-        val response: HttpResponse = submitFormLibelles(client, date)
+        val response: HttpResponse = submitFormCotations(client, date)
         if (response.status.value == 200) {
             charset = serviceAbcBourse.findCharset(response)
             serviceAbcBourse.findError(response, charset!!)?.let {
@@ -106,12 +106,12 @@ class TaskletRecupererAbcCotations(
         }
     }
 
-    private suspend fun submitFormLibelles(client: HttpClient, date: LocalDate): HttpResponse {
+    private suspend fun submitFormCotations(client: HttpClient, date: LocalDate): HttpResponse {
         // https://ktor.io/docs/client-requests.html#form_parameters
         // https://ktor.io/docs/client-responses.html#streaming
         val strDate: String = date.format(DateTimeFormatter.ISO_DATE)
         return client.submitForm(
-            url = domain + pathLibelles,
+            url = domain + pathCotations,
             formParameters = parameters {
                 append("dateFrom", strDate)
                 append("__Invariant", "dateFrom")
@@ -136,7 +136,7 @@ class TaskletRecupererAbcCotations(
                 append(HttpHeaders.AcceptLanguage, "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7")
                 append(HttpHeaders.CacheControl, "max-age=0")
                 append(HttpHeaders.Origin, domain)
-                append(HttpHeaders.Referrer, domain + pathLibelles)
+                append(HttpHeaders.Referrer, domain + pathCotations)
             }
         }
     }
