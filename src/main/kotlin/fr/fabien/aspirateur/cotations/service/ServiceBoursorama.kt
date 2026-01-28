@@ -1,6 +1,6 @@
 package fr.fabien.aspirateur.cotations.service
 
-import fr.fabien.jpa.cotations.Marche
+import fr.fabien.jpa.cotations.enumerations.Marche
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*

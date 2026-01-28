@@ -1,6 +1,6 @@
 package fr.fabien.aspirateur.cotations.dto.boursorama;
 
-import fr.fabien.jpa.cotations.Marche;
+import fr.fabien.jpa.cotations.enumerations.Marche;
 
 import java.time.LocalDate;
 

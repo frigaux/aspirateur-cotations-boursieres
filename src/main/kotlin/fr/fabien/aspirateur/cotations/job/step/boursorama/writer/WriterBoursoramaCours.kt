@@ -2,7 +2,7 @@ package fr.fabien.aspirateur.cotations.job.step.boursorama.writer
 
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur
 import fr.fabien.aspirateur.cotations.dto.boursorama.DtoBoursoramaCours
-import fr.fabien.jpa.cotations.entity.boursorama.BoursoramaCours
+import fr.fabien.jpa.cotations.entities.boursorama.BoursoramaCours
 import fr.fabien.jpa.cotations.repository.boursorama.RepositoryBoursoramaCours
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.UnexpectedJobExecutionException

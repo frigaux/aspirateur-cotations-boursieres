@@ -3,7 +3,7 @@ package fr.fabien.aspirateur.cotations.job.step.boursorama.tasklet
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur
 import fr.fabien.aspirateur.cotations.service.ServiceBoursorama
 import fr.fabien.aspirateur.cotations.service.ServiceCommun
-import fr.fabien.jpa.cotations.Marche
+import fr.fabien.jpa.cotations.enumerations.Marche
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cookies.*

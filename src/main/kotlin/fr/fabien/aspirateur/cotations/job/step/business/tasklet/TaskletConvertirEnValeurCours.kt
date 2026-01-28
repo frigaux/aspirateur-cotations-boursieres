@@ -1,10 +1,10 @@
 package fr.fabien.aspirateur.cotations.job.step.business.tasklet
 
 import fr.fabien.aspirateur.cotations.ApplicationAspirateur
-import fr.fabien.jpa.cotations.entity.Cours
-import fr.fabien.jpa.cotations.entity.Valeur
-import fr.fabien.jpa.cotations.entity.abcbourse.AbcLibelle
-import fr.fabien.jpa.cotations.entity.boursorama.BoursoramaCours
+import fr.fabien.jpa.cotations.entities.Cours
+import fr.fabien.jpa.cotations.entities.Valeur
+import fr.fabien.jpa.cotations.entities.abcbourse.AbcLibelle
+import fr.fabien.jpa.cotations.entities.boursorama.BoursoramaCours
 import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcLibelle
 import fr.fabien.jpa.cotations.repository.RepositoryCours
 import fr.fabien.jpa.cotations.repository.RepositoryValeur
