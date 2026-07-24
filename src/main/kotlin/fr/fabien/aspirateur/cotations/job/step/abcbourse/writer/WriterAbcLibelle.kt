@@ -4,6 +4,7 @@ import fr.fabien.aspirateur.cotations.ApplicationAspirateur
 import fr.fabien.aspirateur.cotations.dto.abcbourse.DtoAbcLibelle
 import fr.fabien.jpa.cotations.entities.abcbourse.AbcLibelle
 import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcLibelle
+import mu.KotlinLogging
 import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.annotation.BeforeStep
 import org.springframework.batch.item.Chunk
@@ -20,6 +21,7 @@ class WriterAbcLibelle(private val repositoryAbcLibelle: RepositoryAbcLibelle) :
         val date: LocalDate by lazy {
             stepExecution.jobParameters.getLocalDate(ApplicationAspirateur.DATE)!!
         }
+        private val logger = KotlinLogging.logger {}
     }
 
     @BeforeStep
@@ -36,13 +38,17 @@ class WriterAbcLibelle(private val repositoryAbcLibelle: RepositoryAbcLibelle) :
         val abcLibelleByTicker: Map<String, AbcLibelle> = repositoryAbcLibelle.findByDateAndTickerIn(date, tickers)
             .associateBy { it.ticker }
         for (dtoAbcLibelle in dtoAbcLibelles) {
-            val libelle: AbcLibelle = abcLibelleByTicker[dtoAbcLibelle.ticker]?.apply {
-                isin = dtoAbcLibelle.isin
-                nom = dtoAbcLibelle.nom
-            } ?: run {
-                AbcLibelle(date, dtoAbcLibelle.ticker, dtoAbcLibelle.isin, dtoAbcLibelle.marche, dtoAbcLibelle.nom)
+            if (dtoAbcLibelle.ticker.length > 5) {
+                logger.error { "ticker trop long ${dtoAbcLibelle.ticker}" }
+            } else {
+                val libelle: AbcLibelle = abcLibelleByTicker[dtoAbcLibelle.ticker]?.apply {
+                    isin = dtoAbcLibelle.isin
+                    nom = dtoAbcLibelle.nom
+                } ?: run {
+                    AbcLibelle(date, dtoAbcLibelle.ticker, dtoAbcLibelle.isin, dtoAbcLibelle.marche, dtoAbcLibelle.nom)
+                }
+                repositoryAbcLibelle.save(libelle)
             }
-            repositoryAbcLibelle.save(libelle)
         }
     }
 }

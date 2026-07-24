@@ -38,7 +38,8 @@ class TaskletCalculerMoyennes(
     private fun calculerMoyennesMobiles(valeur: Valeur, date: LocalDate) {
         var count = 0
         var sum = BigDecimal(0)
-        val lesCours: List<Cours> = repositoryCours.queryBeforeDateByValeur(valeur, date, 300)
+        // moyennes mobiles glissantes sur 3000 jours maximum (champ moyennes_mobiles de type TEXT)
+        val lesCours: List<Cours> = repositoryCours.queryBeforeDateByValeur(valeur, date, 3000)
         val coursALaDate = lesCours[0]
         lesCours.forEach { cours ->
             count++
