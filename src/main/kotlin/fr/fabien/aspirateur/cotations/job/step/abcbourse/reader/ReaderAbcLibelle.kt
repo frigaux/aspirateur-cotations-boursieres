@@ -1,13 +1,13 @@
 package fr.fabien.aspirateur.cotations.job.step.abcbourse.reader
 
-import fr.fabien.aspirateur.cotations.job.step.abcbourse.tasklet.TaskletRecupererAbcLibelles
 import fr.fabien.aspirateur.cotations.dto.abcbourse.DtoAbcLibelle
-import org.springframework.batch.core.StepExecution
+import fr.fabien.aspirateur.cotations.job.step.abcbourse.tasklet.TaskletRecupererAbcLibelles
 import org.springframework.batch.core.annotation.BeforeStep
-import org.springframework.batch.item.ExecutionContext
-import org.springframework.batch.item.ItemReader
-import org.springframework.batch.item.file.FlatFileItemReader
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder
+import org.springframework.batch.core.step.StepExecution
+import org.springframework.batch.infrastructure.item.ExecutionContext
+import org.springframework.batch.infrastructure.item.ItemReader
+import org.springframework.batch.infrastructure.item.file.FlatFileItemReader
+import org.springframework.batch.infrastructure.item.file.builder.FlatFileItemReaderBuilder
 import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Component

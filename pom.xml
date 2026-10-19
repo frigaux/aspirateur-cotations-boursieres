@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.3</version>
+        <version>4.1.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -25,12 +25,12 @@
         <maven.compiler.release>21</maven.compiler.release>
         <java.version>21</java.version>
 
-        <spring.batch>5.2.2</spring.batch>
-        <ktor.version>3.2.0</ktor.version>
+        <spring.batch>6.0.5</spring.batch>
+        <ktor.version>3.4.3</ktor.version>
 
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
-        <kotlin.version>2.2.0</kotlin.version>
+        <kotlin.version>2.4.21</kotlin.version>
     </properties>
 
     <repositories>
@@ -50,11 +50,11 @@
         <!-- Spring boot-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <artifactId>spring-boot-starter-classic</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <artifactId>spring-boot-starter-test-classic</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -135,7 +135,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>2.3.232</version>
+            <version>2.5.252</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -5,11 +5,11 @@ import fr.fabien.aspirateur.cotations.dto.abcbourse.DtoAbcCotation
 import fr.fabien.jpa.cotations.entities.abcbourse.AbcCotation
 import fr.fabien.jpa.cotations.entities.abcbourse.AbcLibelle
 import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcLibelle
-import org.springframework.batch.core.StepExecution
-import org.springframework.batch.core.UnexpectedJobExecutionException
 import org.springframework.batch.core.annotation.BeforeStep
-import org.springframework.batch.item.Chunk
-import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.core.job.UnexpectedJobExecutionException
+import org.springframework.batch.core.step.StepExecution
+import org.springframework.batch.infrastructure.item.Chunk
+import org.springframework.batch.infrastructure.item.ItemWriter
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import java.time.LocalDate

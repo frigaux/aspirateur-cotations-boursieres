@@ -8,15 +8,15 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.statement.*
-import io.ktor.http.Cookie
+import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.springframework.batch.core.StepContribution
-import org.springframework.batch.core.UnexpectedJobExecutionException
+import org.springframework.batch.core.job.UnexpectedJobExecutionException
 import org.springframework.batch.core.scope.context.ChunkContext
+import org.springframework.batch.core.step.StepContribution
 import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.item.ExecutionContext
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.infrastructure.item.ExecutionContext
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Component
@@ -86,7 +86,13 @@ class TaskletRecupererBoursoramaCours(
             throw UnexpectedJobExecutionException("Le nom du fichier $filename ne correspond pas à la date demandée $date")
         }
         val csv: ByteArray = response.bodyAsBytes()
-        logger.info { "Contenu du fichier téléchargé pour le marché ${marche} :${System.lineSeparator()}${csv.toString(Charsets.UTF_8)}" }
+        logger.info {
+            "Contenu du fichier téléchargé pour le marché ${marche} :${System.lineSeparator()}${
+                csv.toString(
+                    Charsets.UTF_8
+                )
+            }"
+        }
 
         return ajouterMarche(csv, marche)
     }

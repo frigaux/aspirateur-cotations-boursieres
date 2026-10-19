@@ -1,7 +1,7 @@
 package fr.fabien.aspirateur.cotations.service
 
-import io.ktor.client.statement.HttpResponse
-import org.springframework.batch.core.UnexpectedJobExecutionException
+import io.ktor.client.statement.*
+import org.springframework.batch.core.job.UnexpectedJobExecutionException
 import org.springframework.stereotype.Service
 
 @Service

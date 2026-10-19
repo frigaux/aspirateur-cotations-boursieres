@@ -1,14 +1,14 @@
 package fr.fabien.aspirateur.cotations
 
 import mu.KotlinLogging
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.JobParametersBuilder
-import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.job.parameters.JobParametersBuilder
+import org.springframework.batch.core.launch.JobOperator
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.builder.SpringApplicationBuilder
+import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.context.ApplicationContext
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import java.time.LocalDate
@@ -18,7 +18,7 @@ import kotlin.system.exitProcess
 @SpringBootApplication
 @EntityScan("fr.fabien")
 @EnableJpaRepositories("fr.fabien")
-class ApplicationAspirateur(val jobLauncher: JobLauncher, val context: ApplicationContext) : CommandLineRunner {
+class ApplicationAspirateur(val jobOperator: JobOperator, val context: ApplicationContext) : CommandLineRunner {
     companion object {
         // job parameters keys
         val DATE: String = "date"
@@ -35,7 +35,7 @@ class ApplicationAspirateur(val jobLauncher: JobLauncher, val context: Applicati
             val jobParameters = JobParametersBuilder()
                 .addLocalDate(DATE, LocalDate.parse(strDate, formatter))
                 .toJobParameters()
-            jobLauncher.run(job, jobParameters)
+            jobOperator.run(job, jobParameters)
         }
     }
 }

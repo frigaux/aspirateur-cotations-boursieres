@@ -4,7 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import org.springframework.batch.core.UnexpectedJobExecutionException
+import org.springframework.batch.core.job.UnexpectedJobExecutionException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.nio.charset.Charset

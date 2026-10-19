@@ -15,12 +15,12 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.springframework.batch.core.StepContribution
-import org.springframework.batch.core.UnexpectedJobExecutionException
+import org.springframework.batch.core.job.UnexpectedJobExecutionException
 import org.springframework.batch.core.scope.context.ChunkContext
+import org.springframework.batch.core.step.StepContribution
 import org.springframework.batch.core.step.tasklet.Tasklet
-import org.springframework.batch.item.ExecutionContext
-import org.springframework.batch.repeat.RepeatStatus
+import org.springframework.batch.infrastructure.item.ExecutionContext
+import org.springframework.batch.infrastructure.repeat.RepeatStatus
 import org.springframework.context.annotation.Scope
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Component

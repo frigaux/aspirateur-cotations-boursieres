@@ -7,8 +7,12 @@ import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcCotation
 import fr.fabien.jpa.cotations.repository.abcbourse.RepositoryAbcLibelle
 import fr.fabien.jpa.cotations.repository.boursorama.RepositoryBoursoramaCours
 import org.junit.jupiter.api.*
-import org.springframework.batch.core.*
-import org.springframework.batch.test.JobLauncherTestUtils
+import org.springframework.batch.core.ExitStatus
+import org.springframework.batch.core.job.Job
+import org.springframework.batch.core.job.JobExecution
+import org.springframework.batch.core.job.parameters.JobParameters
+import org.springframework.batch.core.job.parameters.JobParametersBuilder
+import org.springframework.batch.test.JobOperatorTestUtils
 import org.springframework.batch.test.context.SpringBatchTest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -31,7 +35,7 @@ import java.time.LocalDate
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class TestConfigurationAspirateur(
-    @Autowired private val jobLauncherTestUtils: JobLauncherTestUtils,
+    @Autowired private val jobOperatorTestUtils: JobOperatorTestUtils,
 
     @Autowired private val jobMajAbcLibelles: Job,
     @Autowired private val jobMajAbcCotations: Job,
@@ -66,8 +70,8 @@ class TestConfigurationAspirateur(
     @Order(1)
     @Throws(Exception::class)
     fun `Given jobMajAbcLibelles when launch job then there are libelles in repository (H2)`() {
-        jobLauncherTestUtils.setJob(jobMajAbcLibelles)
-        val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
+        jobOperatorTestUtils.setJob(jobMajAbcLibelles)
+        val jobExecution: JobExecution = jobOperatorTestUtils.startJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
         Assertions.assertTrue(repositoryAbcLibelle.count() > 0, "aucun libellé récupéré depuis ABC bourse !")
     }
@@ -76,8 +80,8 @@ class TestConfigurationAspirateur(
     @Order(2)
     @Throws(Exception::class)
     fun `Given jobMajAbcCotations when launch job then there are cotations in repository (H2)`() {
-        jobLauncherTestUtils.setJob(jobMajAbcCotations)
-        val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
+        jobOperatorTestUtils.setJob(jobMajAbcCotations)
+        val jobExecution: JobExecution = jobOperatorTestUtils.startJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
         Assertions.assertTrue(repositoryAbcCotation.count() > 0, "aucune cotation récupéré depuis ABC bourse !")
     }
@@ -86,8 +90,8 @@ class TestConfigurationAspirateur(
     @Order(3)
     @Throws(Exception::class)
     fun `Given jobMajBoursoramaCours when launch job then there are cours in repository (H2)`() {
-        jobLauncherTestUtils.setJob(jobMajBoursoramaCours)
-        val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
+        jobOperatorTestUtils.setJob(jobMajBoursoramaCours)
+        val jobExecution: JobExecution = jobOperatorTestUtils.startJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
         Assertions.assertTrue(repositoryBoursoramaCours.count() > 0, "aucune cours récupéré depuis boursorama !")
     }
@@ -96,8 +100,8 @@ class TestConfigurationAspirateur(
     @Order(4)
     @Throws(Exception::class)
     fun `Given jobConvertirEnValeurCours when launch job then there are valeurs and cours in repository (H2)`() {
-        jobLauncherTestUtils.setJob(jobConvertirEnValeurCours)
-        val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
+        jobOperatorTestUtils.setJob(jobConvertirEnValeurCours)
+        val jobExecution: JobExecution = jobOperatorTestUtils.startJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
         Assertions.assertTrue(repositoryValeur.count() > 0, "aucune valeur !")
         Assertions.assertTrue(repositoryCours.count() > 0, "aucun cours !")
@@ -107,8 +111,8 @@ class TestConfigurationAspirateur(
     @Order(5)
     @Throws(Exception::class)
     fun `Given jobCalculerMoyennes when launch job then there are moyennes mobiles in repository (H2)`() {
-        jobLauncherTestUtils.setJob(jobCalculerMoyennes)
-        val jobExecution: JobExecution = jobLauncherTestUtils.launchJob(jobParameters)
+        jobOperatorTestUtils.setJob(jobCalculerMoyennes)
+        val jobExecution: JobExecution = jobOperatorTestUtils.startJob(jobParameters)
         Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.exitStatus)
         repositoryCours.queryJoinValeur().forEach { cours ->
             Assertions.assertTrue(

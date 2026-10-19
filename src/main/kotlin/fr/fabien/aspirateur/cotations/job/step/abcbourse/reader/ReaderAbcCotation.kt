@@ -2,13 +2,13 @@ package fr.fabien.aspirateur.cotations.job.step.abcbourse.reader
 
 import fr.fabien.aspirateur.cotations.dto.abcbourse.DtoAbcCotation
 import fr.fabien.aspirateur.cotations.job.step.abcbourse.tasklet.TaskletRecupererAbcCotations
-import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.annotation.BeforeStep
-import org.springframework.batch.item.ExecutionContext
-import org.springframework.batch.item.ItemReader
-import org.springframework.batch.item.file.FlatFileItemReader
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder
-import org.springframework.batch.item.file.mapping.RecordFieldSetMapper
+import org.springframework.batch.core.step.StepExecution
+import org.springframework.batch.infrastructure.item.ExecutionContext
+import org.springframework.batch.infrastructure.item.ItemReader
+import org.springframework.batch.infrastructure.item.file.FlatFileItemReader
+import org.springframework.batch.infrastructure.item.file.builder.FlatFileItemReaderBuilder
+import org.springframework.batch.infrastructure.item.file.mapping.RecordFieldSetMapper
 import org.springframework.context.annotation.Scope
 import org.springframework.core.convert.converter.Converter
 import org.springframework.core.convert.support.DefaultConversionService
@@ -47,7 +47,8 @@ class ReaderAbcCotation : ItemReader<DtoAbcCotation> {
                 }
 
             return RecordFieldSetMapper<DtoAbcCotation>(
-                DtoAbcCotation::class.java, conversionServiceDtoCotation)
+                DtoAbcCotation::class.java, conversionServiceDtoCotation
+            )
         }
     }
 
