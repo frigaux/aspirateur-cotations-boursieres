@@ -1,14 +1,14 @@
 # Exemple de batch combinant Spring Batch, JPA et Kotlin
-- spring-boot-starter-parent 3.5.3
-  - spring-boot-starter
-  - spring-boot-starter-test
-- spring-batch-core et spring-batch-test 5.2.2
-- kotlin 2.2.0
+- spring-boot-starter-parent 4.1.1
+  - spring-boot-starter-classic
+  - spring-boot-starter-test-classic
+- spring-batch-core et spring-batch-test 6.0.5
+- kotlin 2.4.21
   - kotlin-stdlib
   - kotlin-reflect
   - kotlin-test-junit5
 - kotlin-logging-jvm 3.0.5
-- ktor-client-core-jvm, ktor-client-cio-jvm, ktor-client-content-negotiation-jvm et ktor-serialization-kotlinx-json-jvm 3.2.0
+- ktor-client-core-jvm, ktor-client-cio-jvm, ktor-client-content-negotiation-jvm et ktor-serialization-kotlinx-json-jvm 3.4.3
 - dépendance JPA
-- mysql 8.0.36, mysql-connector-j 9.3.0
-- H2 2.3.232 (tests)
+- mysql 8.0.36, mysql-connector-j 9.7.0
+- H2 2.5.252 (tests)
